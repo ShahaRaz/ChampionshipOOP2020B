@@ -1,13 +1,113 @@
-package id209006535;
+package model;
 
-import model.*;
+import java.util.ArrayList;
 import java.util.Scanner;
-import model.Tournament;
 
-public class Program {
-	final int NUMBER_OF_PLAYERS=8;
+import controller.Controller;
+import listeners.ChampionshipListenable;
+
+
+
+public class Model {
+	Tournament tour = new Tournament();
+	String gameChoice;
+	private final int NUMBER_OF_PLAYERS=8;
+	private ArrayList<ChampionshipListenable> allListeners;
+	private ArrayList<Player> roundPlayers;
 	
-	public static void playChampionship(Tournament tour,Scanner scn) {
+	public Model() {
+		allListeners = new ArrayList<ChampionshipListenable>();
+		roundPlayers = new ArrayList<Player>();
+
+	}
+	
+	public Model(Scanner scan) {
+		chooseGameType(scan);
+		System.out.println(this.tour.getType().name());
+		mainMenu(scan);
+	}
+	// cnstrcrr - > 1) game type -> 2) 
+	
+	public void registerListener(ChampionshipListenable l) {
+		allListeners.add(l);
+	}
+	
+	
+	private void chooseGameType(Scanner scan) {
+		boolean flag = false;
+		String gameMenu = "Menu:\n 1) Tennis (1)\n 2) Basketball (2)\n" + " 3) Soccer (3)\n";
+		do {
+			System.out.println(gameMenu);
+			gameChoice = scan.nextLine();
+			switch (gameChoice) {
+			case "1":
+				tour.setType("Tennis");
+				flag = true;
+				break;
+			case "2":
+				tour.setType("Basketball");
+				flag = true;
+				break;
+			case "3":
+				tour.setType("Soccer");
+				flag = true;
+				break;
+			default:
+				
+				System.out.println("wrong input,try again");
+			}
+
+		} while (flag != true);
+		
+		
+	}
+	
+	private void mainMenu(Scanner scan) {
+		
+		String mainMenu = "Menu:\n 1) Add participant\n 2) Start Championship\n " + "3) Exit\n 4) Auto add";
+		boolean flag=false;
+		do {
+			System.out.println(mainMenu);
+			String mainChoice = scan.nextLine();
+			String playerName;
+			switch (mainChoice) {
+			case "1":
+				System.out.println("Enter the Team/Participant name");
+				playerName = scan.nextLine();
+				tour.addParticipant(new Player(playerName));
+				break;
+			case "2":
+				if (tour.howMany() != 8)
+					System.out.println("you must insert 8 teams/participants in order to start a championship!");
+				else {
+					System.out.println("You chose to start a Championship ! ");
+					tour.showParticipants();
+					playChampionship(tour,scan);
+				}
+				break;
+
+			case "3":
+				System.out.println("Bye thank you for playing ");
+				flag=true;
+				break;
+			case "4":
+				for (char alphabet = 'A'; alphabet < NUMBER_OF_PLAYERS+ 'A'; alphabet++) {
+					tour.addParticipant(new Player(Character.toString(alphabet)));
+				}
+				break;
+		
+				
+			default:
+				System.out.println("wrong input,try again");
+			}
+
+		} while (flag != true);
+
+		
+		
+	}
+	
+	public void playChampionship(Tournament tour,Scanner scn) {
 		System.out.println("The " + tour.getType().name() + " Championship has begun!");
 		for (int i = 0; i < tour.howMany(); i += 2) {
 			playGame(tour, tour.getTeams().get(i), tour.getTeams().get(i + 1),scn);
@@ -32,7 +132,7 @@ public class Program {
 		tour.reset();
 	}
 
-	public static void playGame(Tournament tour, Player p1, Player p2,Scanner scn) {
+	public void playGame(Tournament tour, Player p1, Player p2,Scanner scn) {
 		if (tour.getType().name().equalsIgnoreCase("tennis")) {
 			tennisGame(p1, p2,scn);
 		} else if (tour.getType().name().equalsIgnoreCase("basketball")) {
@@ -43,7 +143,7 @@ public class Program {
 
 	}
 
-	public static void tennisGame(Player p1, Player p2,Scanner scanTennis) {
+	public void tennisGame(Player p1, Player p2,Scanner scanTennis) {
 
 		int p1Sets = 0;
 		int p2Sets = 0;
@@ -76,7 +176,7 @@ public class Program {
 
 	}
 
-	public static void basketballGame(Player p1, Player p2,Scanner scanBasketball) {
+	public void basketballGame(Player p1, Player p2,Scanner scanBasketball) {
 		int sum1 = 0;
 		int sum2 = 0;
 		int score1, score2;
@@ -153,7 +253,7 @@ public class Program {
 	return result;
 	}
 
-	public static void soccerGame(Player p1, Player p2,Scanner scanSoccer) {
+	public void soccerGame(Player p1, Player p2,Scanner scanSoccer) {
 		int sum1 = 0;
 		int sum2 = 0;
 		int score1, score2;
@@ -257,82 +357,10 @@ public class Program {
 
 		}
 	}
-
-	public static void main(String[] args) {
-		Scanner scan = new Scanner(System.in);
-		Tournament tour = new Tournament();
-		String gameChoice;
-		boolean flag = false;
-		String mainChoice;
-		String gameMenu = "Menu:\n 1) Tennis (1)\n 2) Basketball (2)\n" + " 3) Soccer (3)\n";
-		do {
-			System.out.println(gameMenu);
-			gameChoice = scan.nextLine();
-			switch (gameChoice) {
-			case "1":
-				tour.setType("Tennis");
-				flag = true;
-				break;
-			case "2":
-				tour.setType("Basketball");
-				flag = true;
-				break;
-			case "3":
-				tour.setType("Soccer");
-				flag = true;
-				break;
-			default:
-				
-				System.out.println("wrong input,try again");
-			}
-
-		} while (flag != true);
-		System.out.println(tour.getType().name());
-		String particName;
-		Player partic;
-		
-		String mainMenu = "Menu:\n 1) Add participant\n 2) Start Championship\n " + "3) Exit\n 4) Auto add";
-		flag=false;
-		do {
-			System.out.println(mainMenu);
-			mainChoice = scan.nextLine();
-			switch (mainChoice) {
-			case "1":
-				System.out.println("Enter the Team/Participant name");
-				particName = scan.nextLine();
-				partic = new Player(particName);
-				tour.addParticipant(partic);
-				break;
-			case "2":
-				if (tour.howMany() != 8)
-					System.out.println("you must insert 8 teams/participants in order to start a championship!");
-				else {
-					System.out.println("You chose to start a Championship ! ");
-					tour.showParticipants();
-					playChampionship(tour,scan);
-				}
-				break;
-
-			case "3":
-				System.out.println("Bye thank you for playing ");
-				flag=true;
-				break;
-			case "4":
-				for (char alphabet = 'A'; alphabet <= 'H'; alphabet++) {
-					tour.addParticipant(new Player(Character.toString(alphabet)));
-				}
-				break;
-		
-				
-			default:
-				System.out.println("wrong input,try again");
-			}
-
-		} while (flag != true);
-
-		scan.close();
+	@Override
+	public String toString() {
+		return super.toString();
 	}
-	//check
 
 
 }
