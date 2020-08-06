@@ -29,7 +29,8 @@ public class Set {
         list.add(p);
         return true;
     }
-    public void reset() {
+   
+	public void reset() {
     	for (int i = 0; i < list.size(); i++) {
 			list.remove(i);
 		}

@@ -2,6 +2,7 @@ package view;
 
 import java.util.ArrayList;
 
+
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -34,7 +35,8 @@ import listeners.ChampionshipListenable;
 import listeners.ViewListenable;
 
 public class View {
-	private static double ENLRAGMENT_FACTOR=1.5;
+	private static final int NUMBER_OF_PLAYERS = 8;
+	private static final double ENLRAGMENT_FACTOR=1.5;
 	private RadioButton rbHouse, rbBuilding, rbCastle;
 	private CheckBox cbRoof, cbWindows, cbDoor;
 	private ComboBox<String> roofColors;
@@ -42,8 +44,8 @@ public class View {
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 	private HBox hb;
 	private Text txt;
-	
-	
+	ArrayList<TextField> tfPlayers;
+	private int nextPlayerIndex=0; // in order insert new names to textFields
 	
 	
 	
@@ -53,6 +55,7 @@ public class View {
 	public View(Stage stage)
 	{
 	allListeners = new ArrayList<ViewListenable>();
+	tfPlayers = new ArrayList<TextField>();
 	bpRoot = new BorderPane();
 	bpRoot.setPadding(new Insets(20*ENLRAGMENT_FACTOR));
 
@@ -120,8 +123,10 @@ public class View {
 	
 	//TextField
 //	TextField tfName = new TextField();
-	for (int i = 0; i < 8; i++) { // make it dynamic layer
-		vbNamesInRound.getChildren().addAll(new TextField());
+	for (int i = 0; i < NUMBER_OF_PLAYERS; i++) { // make it dynamic layer
+		TextField tfTemp=new TextField();
+		tfPlayers.add(tfTemp);
+		vbNamesInRound.getChildren().addAll(tfTemp);
 	}
 	
 
@@ -164,9 +169,10 @@ public class View {
 			@Override
 			public void handle(ActionEvent arg0) {
 				opensPlayGameWindow("Test1", "Test2");
-				for(ViewListenable l : allListeners) {
-					l.viewAskToPlayGame(null);
-				}
+				System.out.println("After opensPlayGameWindow");
+//				for(ViewListenable l : allListeners) {
+//					l.viewAskToPlayGame(null);
+//				}
 			}
 		
 		}); // inner class closure
@@ -184,32 +190,70 @@ public class View {
 		vbPlayerSeperator.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
 		vbPlayerSeperator.setSpacing(10*ENLRAGMENT_FACTOR);
 		vbPlayerSeperator.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+		System.out.println("be4 4 4 4 ");
+		// each layer in VBox is a player row (usually 2 players)
+		int numOfRounds = 2; // = getNumOfRounds();
+		int numOfPlayers = 2; // keep modifiable for generic reasons
+		ArrayList<HBox> hbPlayerScores = new ArrayList<HBox>();
+		int playerIndex=1,roundIndex=1;
+		for(HBox hbPS : hbPlayerScores){
+			System.out.println("in array");
+			hbPS = new HBox();
+			hbPS.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+			hbPS.setSpacing(10*ENLRAGMENT_FACTOR);
+			hbPS.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+			Label lblPName= new Label();
+			lblPName.setText("player" + playerIndex++); // TODO make dynamic -> array / main architecture 
+			hbPS.getChildren().add(lblPName); // when working, move out from the loop
+			TextField[] tfScoreCells = new TextField[numOfRounds];
+			for(TextField tfSC : tfScoreCells) {
+				tfSC = new TextField();
+				tfSC.setText("round" + roundIndex); 
+				hbPS.getChildren().add(tfSC); // when working, move out from the loop
+			}
+//			hbPS.getChildren().add(lblPName);
+//			hbPS.getChildren().addAll(tfScoreCells);
+			hbPS.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
+			
+			vbPlayerSeperator.getChildren().add(hbPS);
+			//FIXME the function doesn't work this way, fix it later.
+		//	hbPlayerScores[i].getChildren().addAll(tfScoreCells);
+		}
+//		HBox[] hbPlayerScores = new HBox[numOfPlayers];
+//		for (int i = 0; i < hbPlayerScores.length; i++) {
+//			System.out.println("in array");
+//			hbPlayerScores[i] = new HBox();
+//			hbPlayerScores[i].setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+//			hbPlayerScores[i].setSpacing(10*ENLRAGMENT_FACTOR);
+//			hbPlayerScores[i].setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+//			Label lblPName= new Label();
+//			lblPName.setText("player" + i); // TODO make dynamic -> array / main architecture 
+//			TextField[] tfScoreCells = new TextField[numOfRounds];
+//			for(TextField tfSC : tfScoreCells) {
+//				tfSC = new TextField();
+//				//tfSC.autosize(); // see if works 
+//			}
+//			hbPlayerScores[i].getChildren().addAll(lblPName,hbPlayerScores[0],hbPlayerScores[1]);
+//		//	hbPlayerScores[i].getChildren().addAll(tfScoreCells);
+//		}
+/*	
+//		HBox hbPlayer1NScore = new HBox();
+//		hbPlayer1NScore.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+//		hbPlayer1NScore.setSpacing(10*ENLRAGMENT_FACTOR);
+//		hbPlayer1NScore.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+//		Label lblP1Name= new Label();
+//		lblP1Name.setText(player1);
+//		TextField tfP1Name = new TextField(); // make it an arraylist
+//		hbPlayer1NScore.getChildren().addAll(lblP1Name,tfP1Name);
+
+//		
 		
-		
-		HBox hbPlayer1NScore = new HBox();
-		hbPlayer1NScore.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-		hbPlayer1NScore.setSpacing(10*ENLRAGMENT_FACTOR);
-		hbPlayer1NScore.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-		Label lblP1Name= new Label();
-		lblP1Name.setText(player1);
-		TextField tfP1Name = new TextField(); // make it an arraylist
-		hbPlayer1NScore.getChildren().addAll(lblP1Name,tfP1Name);
-		
-		
-		
-		
-		HBox hbPlayer2NScore = new HBox();
-		hbPlayer2NScore.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-		hbPlayer2NScore.setSpacing(10*ENLRAGMENT_FACTOR);
-		hbPlayer2NScore.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-		Label lblP2Name= new Label();
-		lblP2Name.setText(player2);
-		TextField tfP2Name = new TextField(); // make it an arraylist
-		hbPlayer2NScore.getChildren().addAll(lblP2Name,tfP2Name);
-		
-		
-		vbPlayerSeperator.getChildren().addAll(hbPlayer1NScore,hbPlayer2NScore);
+//		vbPlayerSeperator.getChildren().addAll(hbPlayer1NScore,hbPlayer2NScore);
+	
+*/
+	//	vbPlayerSeperator.getChildren().addAll(hbPlayerScores);
 		vbPlayerSeperator.setAlignment(Pos.CENTER);
+		System.out.println(vbPlayerSeperator);
 		
 		Scene sceneGame = new Scene(vbPlayerSeperator,300*ENLRAGMENT_FACTOR,200*ENLRAGMENT_FACTOR); 
 		gameStage.setScene(sceneGame);
@@ -290,6 +334,39 @@ public class View {
 			}
 		
 		
+	}
+
+
+
+
+
+	public void addNewName(String name) {
+		tfPlayers.get(nextPlayerIndex).setText(name);
+		nextPlayerIndex++;
+	}
+
+	public void alertPlayerAlreadyExists(String name) {
+		Stage errStage = new Stage();
+		errStage.setTitle("Error");	
+		TextField tfError = new TextField();
+		tfError.setText("Player Already in game, choose another one.");
+		tfError.setAlignment(Pos.CENTER);
+		Scene scene = new Scene(tfError,200*ENLRAGMENT_FACTOR,100*ENLRAGMENT_FACTOR); 
+		errStage.setScene(scene);
+		errStage.show();
+		
+		
+	}
+
+	public void alertNoRoom() {
+		Stage errStage = new Stage();
+		errStage.setTitle("Error");	
+		TextField tfError = new TextField();
+		tfError.setText("Leauge is Full, no room");
+		tfError.setAlignment(Pos.CENTER);
+		Scene scene = new Scene(tfError,200*ENLRAGMENT_FACTOR,100*ENLRAGMENT_FACTOR); 
+		errStage.setScene(scene);
+		errStage.show();		
 	}
 	
 

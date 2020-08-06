@@ -1,0 +1,9 @@
+Fix ME
+
+1/  : public int getNumberOfRounds(boolean isTieBreaker) [in Tournament] 
+
+
+
+2/ merge methods to prevent duplicated code.  (IN VIEW) 
+	public void alertPlayerAlreadyExists(String name)
+	public void alertNoRoom() 

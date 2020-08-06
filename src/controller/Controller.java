@@ -25,27 +25,36 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 		
 	}
 	@Override
-	public void modelUpdatedName() {
-		// TODO Auto-generated method stub
-		
+	public void modelUpdateNoRoom() {
+		theView.alertNoRoom();
 	}
+
+
+
 
 	@Override
-	public void modelUpdatePlayerAlreadyAdded() {
-		// TODO Auto-generated method stub
-		
+	public void modelAddedName(String name) {
+		theView.addNewName( name);
 	}
-
+	
+	@Override
+	public void modelUpdatePlayerAlreadyAdded(String name) {
+		theView.alertPlayerAlreadyExists(name);
+	}
 
 	@Override
 	public void viewAskToPlayGame(String player) {
-		// TODO Auto-generated method stub
+		// view needs to send all the boxes of input to 2 arraylists
+		theModel.checkScoreBoard(player, null, null);
 		
+		// TODO trace forward & backward the logic here \
+		// ALSO back to the view: if results arnt valid... written in one of the functions.
 	}
 
 	@Override
 	public void viewAddedPlayer(String name) {
-		// TODO Auto-generated method stub
+		theModel.addPlayer(name);
+		System.out.println("maybe change to void, and fire update from model");
 		
 	}
 
@@ -62,6 +71,13 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+
+
+
+
+
 
 
 
