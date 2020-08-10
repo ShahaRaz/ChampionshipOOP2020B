@@ -1,7 +1,7 @@
 package view;
 
 import java.util.ArrayList;
-
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -16,9 +16,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -29,14 +33,18 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import listeners.ChampionshipListenable;
 import listeners.ViewListenable;
+
 
 public class View {
 	private static final int NUMBER_OF_PLAYERS = 8;
 	private static final double ENLRAGMENT_FACTOR=1.5;
+	private static final int CONTESTERS_IN_ROUND=2;
 	private RadioButton rbHouse, rbBuilding, rbCastle;
 	private CheckBox cbRoof, cbWindows, cbDoor;
 	private ComboBox<String> roofColors;
@@ -44,8 +52,14 @@ public class View {
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 	private HBox hb;
 	private Text txt;
+	HBox hbAddPlayer;
 	ArrayList<TextField> tfPlayers;
 	private int nextPlayerIndex=0; // in order insert new names to textFields
+	ArrayList<Button> btnsPlayGames;
+	ToggleGroup tglGameType;
+	VBox vbChooseGameYype;
+	VBox vbMiddleStartGame;
+	VBox vbPlayGames;
 	
 	
 	
@@ -55,37 +69,26 @@ public class View {
 	public View(Stage stage)
 	{
 	allListeners = new ArrayList<ViewListenable>();
-	tfPlayers = new ArrayList<TextField>();
+	
 	bpRoot = new BorderPane();
 	bpRoot.setPadding(new Insets(20*ENLRAGMENT_FACTOR));
 
-	
-	
-	Label lblTop= new Label("Top");
-	Label lblBottom= new Label("Bottom");
-	Label lblLeft= new Label("Left");
-	Label lblRight= new Label("Right");
-	Label lblCenter= new Label("Center");
-	
 	//____________________________________toggle game type
-	VBox vbChooseGameYype = new VBox();
+	vbChooseGameYype = new VBox();
 	setRdoGameType(vbChooseGameYype);
 	
 	
 	//____________________________________ add player
-	HBox hbAddPlayer = new HBox();
+	hbAddPlayer = new HBox();
 	setHbAddPlayer (hbAddPlayer);
 	
 	//_____________________________________ Start game
-	VBox vbMiddleStartGame = new VBox();
-	setVbStartGameUnderAddPlayer(vbMiddleStartGame,hbAddPlayer);
+	vbMiddleStartGame = new VBox();
+	setVbStartGameUnderAddPlayer(vbMiddleStartGame,vbChooseGameYype);
+	
+	
 	//__________________________________ player rows (General based on players.size() (in model))
 	VBox vbPlayersInRound = new VBox();
-	
-	TextField tfNameRow = new TextField();
-	
-	tfNameRow.setDisable(true);
-	
 	
 	
 	HBox hbMain = new HBox();
@@ -96,58 +99,154 @@ public class View {
 	
 // TODO Remove Constans & use Data from Model inorder to  __________
 	// Dynamically get proper # of duplicates & Spacing
+	//_____________________________________ DYNAMICLY MAKE ALL ORGANS OF MAIN BOX_________________
+	BtnPlayGameEventHandler2 btnPlayGameEvent2 = new BtnPlayGameEventHandler2();	
+	ArrayList <VBox> vbNamesInRoundLbls2 = new ArrayList<VBox>();
+	ArrayList <TextField> tfPlayerNames2 = new ArrayList<TextField>();
 	
-	VBox vbPlayGames = new VBox();
+	ArrayList <VBox> vbPlayBtns2 = new ArrayList<VBox>();
+	ArrayList <Button> btnPlayGame2 = new ArrayList<Button>();
 	
-	vbPlayGames.setPadding(new Insets(26));
-	vbPlayGames.setSpacing(48);
-	vbPlayGames.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+	VBox vbNamesTemp2;
+	TextField tfTemp2;
 	
-	ArrayList<Button> stageBtns = new ArrayList<Button>();
-	Button btnTmp;
-	for (int i = 0; i < 4; i++) { // make it dynamic layer
-		btnTmp = new Button();
-		btnTmp.setText("Play a Game");
-		stageBtns.add(btnTmp);
+	VBox vbPlayTemp2;
+	Button btnTemp2;
+	
+	HBox hbMainView2 = new HBox();
+	int n=0,b=0,counter=0;// Names , Buttons , main round counter
+	// |||||||||| i = Log2n || n = (Log2n)*n || b  = (Log2n)*(n/2) ||||||||||
+	for (int i = NUMBER_OF_PLAYERS; i > 1 ; i=i/2,counter++) { // runs log2n times
+		// add VB of names  
+		vbNamesTemp2 = new VBox();
+		for(int j=0;j<i;j++,n++) {
+			tfTemp2 = new TextField();
+			tfTemp2.setEditable(false); // disable direct editing of cells.
+			tfPlayerNames2.add(tfTemp2); // add to the TextField arrayList [index n]
+			vbNamesTemp2.getChildren().add(tfTemp2); // add to Current VBox [index k]
+		}
+		vbNamesInRoundLbls2.add(vbNamesTemp2); // add Current VBox to arrayList [index counter(i)]
+		
+		
+		
+		// add VB of Btns
+		vbPlayTemp2 = new VBox();
+		for(int k=0;k<i/2;k++,b++) { // maybe move k out, so that numbering 
+			btnTemp2 = new Button();
+			btnTemp2.setText("Play #" + b);
+			btnTemp2.setOnAction(btnPlayGameEvent2); // set action
+			btnPlayGame2.add(btnTemp2); // add to Buttons arrayList [index b]
+			vbPlayTemp2.getChildren().add(btnTemp2);  // add to Current VBox [index k]
+			
+		}
+		vbPlayBtns2.add(vbPlayTemp2); // add Current VBox to arrayList [index counter(i)]
+		
+		
+		// adding VBoxes to view 
+		hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(counter),vbPlayBtns2.get(counter));
 	}
-	vbPlayGames.getChildren().addAll(stageBtns);
+	
+	
+
+//	private void setBtnsPlayGames(int numberOfPlayers) {
+//		vbPlayGames.getChildren().clear();
+//		vbPlayGames.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+//		vbPlayGames.setSpacing(38*ENLRAGMENT_FACTOR);
+//		vbPlayGames.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+//		
+//		
+//		btnsPlayGames.clear();
+//		// TODO maybe add a toggle group for these buttons
+//		BtnPlayGameEventHandler btnPlayGameEvent = new BtnPlayGameEventHandler();
+//		for (int i = 0; i <  (numberOfPlayers/2); i++) { 
+//			Button btnTmp = new Button();
+//			btnTmp.setText("Play game " + i);
+//			btnTmp.setOnAction(btnPlayGameEvent);
+//			btnsPlayGames.add(btnTmp);
+//		}
+//		vbPlayGames.getChildren().addAll(btnsPlayGames);
+//		vbPlayGames.setAlignment(Pos.CENTER);
+//		
+//	}
+//	 // merge somewhere pretty into the code
+//	class BtnPlayGameEventHandler implements EventHandler<ActionEvent>{
+//		
+//		@Override
+//		public void handle(ActionEvent btnPressed) {
+//			int gameNum = btnsPlayGames.indexOf(btnPressed.getSource());
+//			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
+//			System.out.println("button num " + gameNum + " pressed");
+//			// maybe paint it so we know which game is on now 
+//			firePlayGameBtn(gameNum,0);
+//			
+//		}	
+//	}
+	
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	ArrayList<VbPlayGameButtonRoundBox> vboxesPlayRoundButtons = new ArrayList<VbPlayGameButtonRoundBox>();
+//		int k=NUMBER_OF_PLAYERS;//	for (int k = NUMBER_OF_PLAYERS; k > 1 ; k=k/2) { // number of rounds FOR EACH ROUND 
+//		VbPlayGameButtonRoundBox vbPlayRound = new VbPlayGameButtonRoundBox(k,ENLRAGMENT_FACTOR);
+//		vbPlayRound.getVBox().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+//				@Override
+//				public void handle(MouseEvent btnPressed) {
+//					int gameNum = vbPlayRound.getBtnsPlay().indexOf(btnPressed.getSource());					//theModel.changeWindowColor(index);
+//					System.out.println("button num " + gameNum + " pressed");
+//					System.out.println("class of " + btnPressed.getTarget().getClass());
+//					((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green"); 
+//					firePlayGameBtn(gameNum,0);				}
+//			});
+//		vboxesPlayRoundButtons.add(vbPlayRound);
+////	}
+//	
+	//________________________________________________________________________________________
+	tfPlayers = new ArrayList<TextField>();
+	vbPlayGames = new VBox();
+	btnsPlayGames = new ArrayList<Button>();
+	setBtnsPlayGames(NUMBER_OF_PLAYERS);
+	
 	
 	VBox vbNamesInRound = new VBox();
 	vbNamesInRound.setPadding(new Insets(10));
-	vbNamesInRound.setSpacing(10);
+	vbNamesInRound.setSpacing(10*ENLRAGMENT_FACTOR);
 	vbNamesInRound.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-	///____________TODO  CREATE ARRAYs OF US ______________ START 
-	//____TODO: update number of new buttons using the model's round $ info
-	//Play game button 
-	
-	
 	//TextField
 //	TextField tfName = new TextField();
 	for (int i = 0; i < NUMBER_OF_PLAYERS; i++) { // make it dynamic layer
 		TextField tfTemp=new TextField();
+		tfTemp.setEditable(false); // disable direct editing of cells.
 		tfPlayers.add(tfTemp);
-		vbNamesInRound.getChildren().addAll(tfTemp);
 	}
+	vbNamesInRound.getChildren().addAll(tfPlayers);
+	vbNamesInRound.setAlignment(Pos.CENTER);
 	
 
-	
+	//hirarcy hierarchy
 	///____________TODO  CREATE ARRAY OF US ______________ Finish
+	//FIXME return to normal Switch next two lines (comment out and uncomment out)
 	hbMain.getChildren().addAll(vbNamesInRound,vbPlayGames);
-	
-	
-	bpRoot.setTop(lblTop);
-	bpRoot.setBottom(lblBottom);
-	bpRoot.setLeft(lblLeft);
-	bpRoot.setRight(lblRight);
-	bpRoot.setCenter(lblCenter);
-	
-	
-	for(Node n: bpRoot.getChildren()) {
-		((Label)n).setBorder(new Border(new BorderStroke
+//	hbMain.getChildren().addAll(vbNamesInRound,vboxesPlayRoundButtons.get(0).getVBox());
+
+	for(Node ny: bpRoot.getChildren()) {
+		((Label)ny).setBorder(new Border(new BorderStroke
 				(Color.BLACK,BorderStrokeStyle.SOLID,null,new BorderWidths(20))));
 		
 	}
-	// Make Dynamically Modifiable _____________________________ Finish
 	bpRoot.setLeft(hbMain);
 	bpRoot.setRight(vbChooseGameYype);
 	bpRoot.setCenter(vbMiddleStartGame);
@@ -160,16 +259,76 @@ public class View {
 
 }	//Construe methods_________________________________________
 
-	private void setVbStartGameUnderAddPlayer(VBox vbMiddleStartGame, HBox hbAddPlayer) {
+	private void setBtnsPlayGames(int numberOfPlayers) {
+		vbPlayGames.getChildren().clear();
+		vbPlayGames.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+		vbPlayGames.setSpacing(38*ENLRAGMENT_FACTOR);
+		vbPlayGames.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+		
+		
+		btnsPlayGames.clear();
+		// TODO maybe add a toggle group for these buttons
+		BtnPlayGameEventHandler btnPlayGameEvent = new BtnPlayGameEventHandler();
+		for (int i = 0; i <  (numberOfPlayers/2); i++) { 
+			Button btnTmp = new Button();
+			btnTmp.setText("Play game " + i);
+			btnTmp.setOnAction(btnPlayGameEvent);
+			btnsPlayGames.add(btnTmp);
+		}
+		vbPlayGames.getChildren().addAll(btnsPlayGames);
+		vbPlayGames.setAlignment(Pos.CENTER);
+		
+	}
+	 // merge somewhere pretty into the code
+	class BtnPlayGameEventHandler implements EventHandler<ActionEvent>{
+		
+		@Override
+		public void handle(ActionEvent btnPressed) {
+			int gameNum = btnsPlayGames.indexOf(btnPressed.getSource());
+			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
+			System.out.println("button num " + gameNum + " pressed");
+			// maybe paint it so we know which game is on now 
+			firePlayGameBtn(gameNum,0);
+			
+		}	
+	}
+	
+
+	class BtnPlayGameEventHandler2 implements EventHandler<ActionEvent>{
+		@Override
+		public void handle(ActionEvent btnPressed) {
+			String btnContent = ((Button)btnPressed.getSource()).getText();
+			Integer gameNum2 = Integer.parseUnsignedInt(btnContent, 6, btnContent.length(), 10);
+			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
+			System.out.println("button num " + gameNum2 + " pressed");
+			// maybe paint it so we know which game is on now 
+			firePlayGameBtn(gameNum2,0);
+		}	
+	}
+	
+
+	
+	
+	
+	
+
+	
+
+	private void setVbStartGameUnderAddPlayer(VBox vbMiddleStartGame,VBox vbChooseGameYype) {
 		Button btnStartGame = new Button();
 		btnStartGame.setText("Start Championship");
-
-		
 		btnStartGame.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				opensPlayGameWindow("Test1", "Test2");
-				System.out.println("After opensPlayGameWindow");
+					String gameType = getGameType();
+					if((gameType!="") && checkLeaugeIsFull())
+					{
+						bpRoot.getChildren().remove(vbMiddleStartGame);
+						bpRoot.getChildren().remove(vbChooseGameYype);
+						fireStartChampionship((gameType));
+						//opensPlayGameWindow("Test1", "Test2");
+						System.out.println("After opensPlayGameWindow");
+					}
 //				for(ViewListenable l : allListeners) {
 //					l.viewAskToPlayGame(null);
 //				}
@@ -183,84 +342,129 @@ public class View {
 	}
 	
 	
-	private void opensPlayGameWindow(String player1,String player2) {
+	
+	
+	protected boolean checkLeaugeIsFull() {
+		boolean result = (nextPlayerIndex==NUMBER_OF_PLAYERS);
+		if (!result) {
+			popUpShortMassage("Can't start game", "please enter " + (NUMBER_OF_PLAYERS-nextPlayerIndex) +
+					" more players", 200, 100);
+			return false;
+		}
+		return true;
+	}
+
+	protected String getGameType() {
+		RadioButton chk;
+		chk = (RadioButton)tglGameType.getSelectedToggle(); // Cast object to radio button
+		if (chk==null) {
+	    	popUpShortMassage("Can't start game", "please select game type", 200, 100);
+	    	return "";
+		}
+        return chk.getText();
+
+
+	}
+	
+	public void opensPlayGameWindow(int numOfRounds,String player1,String player2,int gameState,int gameId) {
+		// number of rounds (inorder to know how many textboxes to open
+		String[] tempStrArr = {player1,player2}; // for the loop..
 		Stage gameStage = new Stage();
 		gameStage.setTitle("PlayGame");
 		VBox vbPlayerSeperator = new VBox();
 		vbPlayerSeperator.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
 		vbPlayerSeperator.setSpacing(10*ENLRAGMENT_FACTOR);
 		vbPlayerSeperator.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-		System.out.println("be4 4 4 4 ");
-		// each layer in VBox is a player row (usually 2 players)
-		int numOfRounds = 2; // = getNumOfRounds();
-		int numOfPlayers = 2; // keep modifiable for generic reasons
-		ArrayList<HBox> hbPlayerScores = new ArrayList<HBox>();
-		int playerIndex=1,roundIndex=1;
-		for(HBox hbPS : hbPlayerScores){
-			System.out.println("in array");
-			hbPS = new HBox();
-			hbPS.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-			hbPS.setSpacing(10*ENLRAGMENT_FACTOR);
-			hbPS.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+		Label lblHeadline = new Label(player1 + " Vs. " + player2 );
+		lblHeadline.setMinHeight(10*NUMBER_OF_PLAYERS);
+		lblHeadline.setAlignment(Pos.TOP_CENTER);
+		lblHeadline.setFont(Font.font("Cambria", 32));
+		vbPlayerSeperator.getChildren().add(lblHeadline); 
+		// each layer in VBox is a player row 
+		ArrayList<HBox> hbPlayerScores = new ArrayList<HBox>(); // array of HBoxes
+		HBox hbTempPS; // each element in Array of HBoxes
+		for (int i = 0; i < CONTESTERS_IN_ROUND; i++) {	
+		//horizontal box initialize
+			hbTempPS = new HBox();
+			hbTempPS.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
+			hbTempPS.setSpacing(10*ENLRAGMENT_FACTOR);
+			hbTempPS.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
+		//name label
 			Label lblPName= new Label();
-			lblPName.setText("player" + playerIndex++); // TODO make dynamic -> array / main architecture 
-			hbPS.getChildren().add(lblPName); // when working, move out from the loop
-			TextField[] tfScoreCells = new TextField[numOfRounds];
-			for(TextField tfSC : tfScoreCells) {
-				tfSC = new TextField();
-				tfSC.setText("round" + roundIndex); 
-				hbPS.getChildren().add(tfSC); // when working, move out from the loop
+			lblPName.setText(tempStrArr[i]); 
+			lblPName.setMinWidth(40*ENLRAGMENT_FACTOR);
+			lblPName.setMaxWidth(40*ENLRAGMENT_FACTOR);
+			hbTempPS.getChildren().add(lblPName); // hbTempPS[0]
+		//Scores 
+			//TextField[] tfScoreCells = new TextField[numOfRounds];
+			System.out.println("num of rounds: " + numOfRounds);
+			ArrayList<TextField> tfScoreCells =  new ArrayList<TextField>();
+			TextField tfTempSC;
+			for (int j = 0; j < numOfRounds; j++) {
+				tfTempSC = new TextField();
+				tfTempSC.setText("R" + (j+1)); 
+				tfTempSC.setMinWidth(15*ENLRAGMENT_FACTOR);
+				tfScoreCells.add(tfTempSC);
 			}
-//			hbPS.getChildren().add(lblPName);
-//			hbPS.getChildren().addAll(tfScoreCells);
-			hbPS.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
+			hbTempPS.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
 			
-			vbPlayerSeperator.getChildren().add(hbPS);
-			//FIXME the function doesn't work this way, fix it later.
-		//	hbPlayerScores[i].getChildren().addAll(tfScoreCells);
+			hbTempPS.getChildren().addAll(tfScoreCells); //hbTempPS[1+j] (each 1 of them is
+			hbPlayerScores.add(hbTempPS);// hbPlayerScores[i]
 		}
-//		HBox[] hbPlayerScores = new HBox[numOfPlayers];
-//		for (int i = 0; i < hbPlayerScores.length; i++) {
-//			System.out.println("in array");
-//			hbPlayerScores[i] = new HBox();
-//			hbPlayerScores[i].setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-//			hbPlayerScores[i].setSpacing(10*ENLRAGMENT_FACTOR);
-//			hbPlayerScores[i].setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-//			Label lblPName= new Label();
-//			lblPName.setText("player" + i); // TODO make dynamic -> array / main architecture 
-//			TextField[] tfScoreCells = new TextField[numOfRounds];
-//			for(TextField tfSC : tfScoreCells) {
-//				tfSC = new TextField();
-//				//tfSC.autosize(); // see if works 
-//			}
-//			hbPlayerScores[i].getChildren().addAll(lblPName,hbPlayerScores[0],hbPlayerScores[1]);
-//		//	hbPlayerScores[i].getChildren().addAll(tfScoreCells);
-//		}
-/*	
-//		HBox hbPlayer1NScore = new HBox();
-//		hbPlayer1NScore.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-//		hbPlayer1NScore.setSpacing(10*ENLRAGMENT_FACTOR);
-//		hbPlayer1NScore.setBackground(new Background(new BackgroundFill(Color.AZURE, null, null)));
-//		Label lblP1Name= new Label();
-//		lblP1Name.setText(player1);
-//		TextField tfP1Name = new TextField(); // make it an arraylist
-//		hbPlayer1NScore.getChildren().addAll(lblP1Name,tfP1Name);
+		vbPlayerSeperator.getChildren().addAll(hbPlayerScores);
 
-//		
-		
-//		vbPlayerSeperator.getChildren().addAll(hbPlayer1NScore,hbPlayer2NScore);
-	
-*/
-	//	vbPlayerSeperator.getChildren().addAll(hbPlayerScores);
 		vbPlayerSeperator.setAlignment(Pos.CENTER);
-		System.out.println(vbPlayerSeperator);
+		//Btn to check results
+		Button btnEnterResults = new Button();
+		btnEnterResults.setText("Enter Results");
+		btnEnterResults.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				//TODO collect values from cells into arraylist and send to model for checkig
+				ArrayList<Integer> p1Results = new ArrayList<Integer>();
+				ArrayList<Integer> p2Results = new ArrayList<Integer>();
+			//	scanResultsFromBoard(p1Results,p2Results,hbPlayerScores,numOfRounds);
+				String temp1,temp2;
+				boolean scoresValid=true;
+				for (int j = 0; j < numOfRounds; j++) {
+					temp1 = ((TextField)((HBox) hbPlayerScores.get(0)).getChildren().get(1+j)).getText();
+					temp2 = ((TextField)((HBox) hbPlayerScores.get(1)).getChildren().get(1+j)).getText();
+					if(!(temp1.matches("\\d*"))||(!(temp2.matches("\\d*")))) {
+						popUpShortMassage("Invalid input" ,
+								"In round: " + (j+1) + "  Enter only integers " , 300, 150);
+						scoresValid=false;
+						break;
+					}
+					else {
+						p1Results.add(Integer.parseInt(temp1));
+						p2Results.add(Integer.parseInt(temp2));
+						
+					}	
+				}
+					// if(temp1) parse to integer try catch or set textfields to accept only digits
+					if(scoresValid) {
+						fireCheckResults(p1Results, p2Results, 0,gameId); // gameStage -- where to determain
+						gameStage.close();
+						// paint playButton in green
+					}
+					else {
+						//Garbage collector or 
+						p1Results.clear(); 
+						p2Results.clear();
+					}
+				}
+			
+			
+
+			
+		});
 		
-		Scene sceneGame = new Scene(vbPlayerSeperator,300*ENLRAGMENT_FACTOR,200*ENLRAGMENT_FACTOR); 
+		//show time
+		vbPlayerSeperator.getChildren().add(btnEnterResults);
+		vbPlayerSeperator.setAlignment(Pos.CENTER);
+		Scene sceneGame = new Scene(vbPlayerSeperator,400*ENLRAGMENT_FACTOR,200*ENLRAGMENT_FACTOR); 
 		gameStage.setScene(sceneGame);
 		gameStage.show();
-		
-		
-		
 		
 	}
 
@@ -268,16 +472,24 @@ public class View {
 		Label lblEnterName = new Label();
 		lblEnterName.setText("Enter name");
 		TextField tfName = new TextField(); // Text Field
+		// ENTER BY ENTER
+		tfName.setOnKeyPressed(new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent keyEvent) {
+				if(keyEvent.getCode()==KeyCode.ENTER) {
+					handleNameText(tfName);
+				}
+			}
+		});
+		// ENTER BY BUTTON
 		Button btnAddPlayer = new Button();
 		btnAddPlayer.setText("add");
 		
 		btnAddPlayer.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				for(ViewListenable l : allListeners) {
-					l.viewAddedPlayer(tfName.getText());
-				}
-				tfName.setText("");
+				handleNameText(tfName);
 			}
 		
 		}); // inner class closure
@@ -288,12 +500,21 @@ public class View {
 				
 	}
 	
+	private void handleNameText(TextField tfTxt) {
+		if(tfTxt.getText().length()!=0) {
+			fireAskToAddNewPlayer(tfTxt.getText());
+			tfTxt.setText("");
+		}
+	}
+	
+
+
 	private void setRdoGameType(VBox vbChooseGameType) {
 		vbChooseGameType.setPadding(new Insets(30*ENLRAGMENT_FACTOR));
 		vbChooseGameType.setSpacing(20*ENLRAGMENT_FACTOR);
 		vbChooseGameType.setBackground(new Background(new BackgroundFill(Color.AQUA, null, null)));
 		
-		ToggleGroup tglGameType = new ToggleGroup();
+		tglGameType = new ToggleGroup();
 		RadioButton rdoTennis = new RadioButton("Tennis");
 		RadioButton rdoSoccer = new RadioButton("Soccer");
 		RadioButton rdoBasketball= new RadioButton("Basketball");
@@ -303,74 +524,112 @@ public class View {
 		rdoBasketball.setToggleGroup(tglGameType);
 		
 		vbChooseGameType.getChildren().addAll(rdoTennis,rdoSoccer,rdoBasketball);
-		
 		vbChooseGameType.setAlignment(Pos.CENTER);
 		vbChooseGameType.setAlignment(Pos.CENTER_LEFT);
+		
 	}
-	
-	
-	public void registerListener(ViewListenable l) {
-		allListeners.add(l);
-	}
-	
-	
-	private void firePlayGameBtn(String players) {
-		for (ViewListenable l : allListeners)
-			l.viewAskToPlayGame(players);
-	}
-	
-	
-	
-	
-	
+
 	// Inner Classes ________________________________________________
-	class PlayGameEvent implements EventHandler<Event>{
-
-		@Override
-		public void handle(Event e) {
-			Button btn = (Button)(e.getSource());
-			String btnText = btn.getText();
-			firePlayGameBtn(btnText); // TODO Implemnet to controller
-			}
-		
-		
-	}
-
-
-
-
 
 	public void addNewName(String name) {
 		tfPlayers.get(nextPlayerIndex).setText(name);
 		nextPlayerIndex++;
-	}
+		if(nextPlayerIndex==NUMBER_OF_PLAYERS)
+			hbAddPlayer.setVisible(false);
+	} // action started from 
 
 	public void alertPlayerAlreadyExists(String name) {
-		Stage errStage = new Stage();
-		errStage.setTitle("Error");	
-		TextField tfError = new TextField();
-		tfError.setText("Player Already in game, choose another one.");
-		tfError.setAlignment(Pos.CENTER);
-		Scene scene = new Scene(tfError,200*ENLRAGMENT_FACTOR,100*ENLRAGMENT_FACTOR); 
-		errStage.setScene(scene);
-		errStage.show();
-		
-		
+		popUpShortMassage("Error", name + " Already in the leauge, choose another one.", 200, 100);
 	}
 
 	public void alertNoRoom() {
-		Stage errStage = new Stage();
-		errStage.setTitle("Error");	
-		TextField tfError = new TextField();
-		tfError.setText("Leauge is Full, no room");
-		tfError.setAlignment(Pos.CENTER);
-		Scene scene = new Scene(tfError,200*ENLRAGMENT_FACTOR,100*ENLRAGMENT_FACTOR); 
-		errStage.setScene(scene);
-		errStage.show();		
+		popUpShortMassage("Error", "league is full, No room" , 200, 100);
 	}
 	
+	private void popUpShortMassage(String headLine , String Massage,int Width, int Height) {
+		Stage miniStage = new Stage();
+		VBox vbPopup = new VBox();
+		miniStage.setTitle(headLine);	
+		Label lblMiniPopup = new Label();
+		lblMiniPopup.setText(Massage);
+		lblMiniPopup.setAlignment(Pos.CENTER);
+		setStageCONSTSize(miniStage, Width, Width, Height, Height);
+		Button btnClose = new Button();
+		btnClose.setText("Ok");
+		btnClose.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				miniStage.close();
+			}
+		});
+		vbPopup.getChildren().addAll(lblMiniPopup,btnClose);
+		vbPopup.setAlignment(Pos.CENTER);
+		vbPopup.setSpacing(20*ENLRAGMENT_FACTOR);
+		
+		Scene scene = new Scene(vbPopup,Width*ENLRAGMENT_FACTOR,Height*ENLRAGMENT_FACTOR); 
+		miniStage.setScene(scene);
+		
+		//miniStage.initStyle(StageStyle.UNDECORATED);
+		miniStage.show();
+		
+		miniStage.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+
+			@Override
+			public void handle(KeyEvent theEvent) {
+				if(theEvent.getCode()==KeyCode.ENTER||theEvent.getCode()==KeyCode.ESCAPE)
+					miniStage.close();
+			}
+		});
+		}
 
 	
+	private void setStageCONSTSize(Stage stg,int minWidth  , int maxWidth, int minHeihgt,int maxHeight) { // height 
+	stg.setMinHeight(minHeihgt*ENLRAGMENT_FACTOR);
+	stg.setMaxHeight(maxHeight*ENLRAGMENT_FACTOR);
+	stg.setMinWidth(minWidth*ENLRAGMENT_FACTOR);
+	stg.setMaxWidth(maxWidth*ENLRAGMENT_FACTOR);
+	}
+
+	private void fireCheckResults(ArrayList<Integer> p1Score,ArrayList<Integer> p2Score,int gameStage,int gameId) {
+		for (int i = 0; i < p1Score.size(); i++) {
+			System.out.print("p1 score in round " + (i+1) + " is " + p1Score.get(i));
+			System.out.println("\tp2 score in round " + (i+1) + " is: "+p2Score.get(i));
+			for (ViewListenable l : allListeners) {
+				l.viewAskToPlayGame(p1Score, p2Score, gameStage, gameId);
+			}
+		}
+		
+		//TODO Continue me -> Do check b4 if the we're happy with the logic.
+	}
+	
+	private void fireStartChampionship(String gameType) {
+		for (ViewListenable l : allListeners)
+			l.viewStartChamp(gameType);
+
+	}
+	
+	protected void firePlayGameBtn(int gameNumInRound,int gameState) {
+		for (ViewListenable l : allListeners)
+			l.viewAskForGameFormat(gameNumInRound,gameState);
+	}
+	
+	protected void fireAskToAddNewPlayer(String name) {
+		for(ViewListenable l : allListeners) {
+			l.viewAskToAddPlayer(name);
+		}		
+	}
+
+	
+	public void alertNameNotValid(String message) {
+		popUpShortMassage("Error", "name not valid! ," + message , 200, 100);
+	}
+
+	public void registerListener(ViewListenable l) {
+		allListeners.add(l);
+	}
+
+
+
 	
 	
 }

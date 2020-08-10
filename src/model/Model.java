@@ -38,15 +38,15 @@ public class Model {
 			gameChoice = scan.nextLine();
 			switch (gameChoice) {
 			case "1":
-				tour.setType("Tennis");
+				setTourType("Tennis");
 				flag = true;
 				break;
 			case "2":
-				tour.setType("Basketball");
+				setTourType("Basketball");
 				flag = true;
 				break;
 			case "3":
-				tour.setType("Soccer");
+				setTourType("Soccer");
 				flag = true;
 				break;
 			default:
@@ -56,6 +56,10 @@ public class Model {
 
 		} while (flag != true);
 
+	}
+	
+	public void setTourType(String gameType) {
+		tour.setType(gameType);
 	}
 
 	private void mainMenu(Scanner scan) {
@@ -88,7 +92,7 @@ public class Model {
 				break;
 			case "4":
 				for (char alphabet = 'A'; alphabet < NUMBER_OF_PLAYERS + 'A'; alphabet++) {
-					tour.addParticipant(new Player(Character.toString(alphabet)));
+					addPlayer(Character.toString(alphabet));
 				}
 				break;
 
@@ -104,6 +108,8 @@ public class Model {
 		System.out.println("The " + tour.getType().name() + " Championship has begun!");
 		for (int i = 0; i < tour.getNumOfPlayerInRound(); i += 2) {
 			playGame(tour, tour.getTeams().get(i), tour.getTeams().get(i + 1), scn);
+			
+			//FIRE  POPUP "
 		}
 		for (int i = 0; i < tour.getNumOfPlayerInRound(); i++) {
 			if (tour.getTeams().get(i).getWinsCounter() == 1)
@@ -353,8 +359,9 @@ public class Model {
 
 		}
 	}
-	public void checkScoreBoard(String gameType,ArrayList <Integer> p1Score,ArrayList <Integer> p2Score) {
-		tour.checkBoard(gameType, p1Score, p2Score);
+	public void checkScoreBoard(int gameType,ArrayList <Integer> p1Score
+			,ArrayList <Integer> p2Score,int gameId) {
+		tour.checkBoard(gameType, p1Score, p2Score,gameId);
 	}
 	
 
@@ -364,12 +371,23 @@ public class Model {
 	}
 
 	public void addPlayer(String name) {
-		Player addMe = new Player(name);
+		Player addMe;
+		try {
+		addMe = new Player(name);
+		}catch (Exception e)
+		{
+			fireModelUpdateNameInvalid(e.getMessage());
+			return; // terminate
+		} 
 		boolean beenAdded =  tour.addParticipant(addMe);		
 		if (beenAdded) 
 			fireModelAddedName(name);
 		else {
-			if (isNameInTourAlready(name)) {
+			fireModelUpdateNameAlreadyExists(name);
+		}
+	}
+	/*		NO NEED TO CHECK, SINCE WE HIDE "add" BUTTON WHEN FULL- SO ONLY OPTION LEFT IS : NAME ALREADY EXISTS
+			if (isNameInTourAlready(name)) { // maybe delete, and simply hide the Add button 
 				fireModelUpdateNameAlreadyExists(name);
 			}
 			else {
@@ -388,7 +406,13 @@ public class Model {
 			}
 		}
 		return false;
-		
+	}
+	*/
+
+	private void fireModelUpdateNameInvalid(String message) {
+		for(ChampionshipListenable cl : allListeners) {	
+			cl.modelUpdateNameInvalid(message);		
+		}
 	}
 
 	private void fireModelUpdateNoRoom() {
@@ -408,6 +432,31 @@ public class Model {
 			 cl.modelUpdatePlayerAlreadyAdded(name);
 		 }
 		}
+
+	public void sendPlayerNameNRounds(int gameId,int gameState) {
+		String[] playersPlaying = getPlayersInGivenRound(gameId);
+		int numOfRounds = tour.getNumberOfRounds(gameState);
+		fireModelSendRoundFormat(numOfRounds,playersPlaying[0],playersPlaying[1],gameState,gameId);
+	}
 	
+	private String[] getPlayersInGivenRound(int gameNumber) {
+		String player1,player2;
+		player1 = tour.getTeams().get(2*gameNumber).getName();
+		player2 = tour.getTeams().get((2*gameNumber)+1).getName();
+		String[] playersPlaying = {player1,player2};
+		return playersPlaying;
+	}
+
+	private void fireModelSendRoundFormat(int numOfRounds, String player1, String player2,int gameState,int gameId) {
+		 for(ChampionshipListenable cl : allListeners) {
+			 cl.modelSendGameFormat(numOfRounds,player1,player2,gameState,gameId);
+		 }
+
+	}
+
+	// gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3])
+	// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football), in tennis [1=2=3=...n (till tieBreak)]
+	// numOfRounds - how many rounds there are in a game -> 
+	//	-> for example: football has 2 rounds in regular, 2 rounds in extraTime & 5 rounds[shots] in penalties
 
 }

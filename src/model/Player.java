@@ -3,11 +3,20 @@ public class Player {
 	private String name;
 	private int winsCounter;
 	
-	public Player(String name) {
+	public Player(String name) throws Exception {
+		checkNameValid(name);
 		this.name=name;
 		winsCounter=0;
 	}
 	
+	private void checkNameValid(String name2) throws Exception {
+		if(name2.length()==0) 
+			throw new Exception("cannot insert empty name");
+//		if(name.charAt(0)<65||name.charAt(0)>90)
+//			throw new Exception("first letter must be Upper-Case");
+		////// Naming logic will be here With proper throw
+	}
+
 	public void uppWins() {
 		winsCounter++;
 	}

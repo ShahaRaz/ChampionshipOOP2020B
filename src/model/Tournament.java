@@ -7,8 +7,8 @@ public class Tournament {
 	public enum gameType {
 		Tennis, Basketball, Soccer
 	};
-
-	private gameType type;
+	
+	private  gameType type;
 	private Set teams;
 
 	public Tournament() {
@@ -74,19 +74,23 @@ public class Tournament {
 	}
 	
 	
-	public int getNumberOfRounds(boolean isTieBreaker) {
-		return 2; // TODO FIX ME
+	public int getNumberOfRounds(int gameState) {
+		
+		return 6; // TODO FIX ME
 //		if(!isTieBreaker) {
 //		switch(type) {
 //		case Basketball:
 //			return 4;
 //			break;
+//			
 //		case Soccer:
 //			return 2;
 //			break;
+//			
 //		case Tennis:
 //			return 5; //TODO  if 3-0 happens, we also stop
 //			break;
+//			
 //		default: 
 //			return -1;
 //		 }
@@ -108,6 +112,7 @@ public class Tournament {
 //		}
 	}
 	
+
 	public int setWinner(ArrayList<Integer> scoresPlayer1, ArrayList<Integer> scoresPlayer2 ) {
 		//TODO - return [i] if player [i] wins [i=1/2] , return 0 if tie
 		// WRITE ME 
@@ -115,8 +120,8 @@ public class Tournament {
 	}
 	
 	
-	private static boolean enterRoundScore(String gameType,int gameStage,
-			int p1inputedResult,int p2inputedResult, int minResult, int maxResult) {
+	private boolean enterRoundScore(int gameType,int gameStage,
+			int p1Score,int p2Score, int minResult, int maxResult) {
 		// gameStage will say which part (for example, basketBall have 4 quarters, then 2 even-brakers, 
 		// so valid input for basketball games would be betweeen 1& 6 //
 		// must use the entire logic in the model for each score 
@@ -126,33 +131,76 @@ public class Tournament {
 			minResult = 0;
 		if(maxResult>100)
 			maxResult=100;
-//		if(inputedResult<minResult || inputedResult>maxResult)
-//			return false; // needs to ask user again for proper input
+		
+		switch(type) {
+			case Tennis:
+				if (p1Score > 7 || p2Score > 7 || p1Score < 0 || p2Score < 0
+						|| (Math.abs(p1Score - p2Score) < 2 && (p1Score + p2Score) < 13)
+						|| (p1Score != 6 && p2Score != 6) && (p1Score + p2Score) < 12) {
+					System.out.println("not valid scores , try again"); // fire NOT VALID SCORE
+					return false;
+				}
+				else 
+					return true;
+			
+			case Basketball:
+				if(p1Score<0||p2Score<0) {
+					System.out.println("fire NOT VALID"); // OR THROWS 
+					return false;
+				}
+				else 
+					return true;
+			case Soccer:
+				if(p1Score<0||p2Score<0) {
+					System.out.println("fire NOT VALID"); // OR THROWS 
+					return false;
+				}
+				else 
+					return true;		
+		}
+		
 		
 		return true; // all 
 	}
 	
-	protected static boolean checkBoard(String gameType,ArrayList <Integer> p1Score,ArrayList <Integer> p2Score) {
+	protected boolean checkBoard(int gameStage,ArrayList <Integer> p1Score,
+			ArrayList <Integer> p2Score,int gameId) {
 		if (p1Score.size()!=p2Score.size())
-			return false;
+			return false; // fire popup 
 		int totalRoundsPlayed = p1Score.size(); // for readability 
 		for (int i = 0; i < totalRoundsPlayed; i++) {
-			if(!enterRoundScore(gameType, i+1, p1Score.get(i), p2Score.get(i), 1, 10)) {
-				printInstructions(gameType,i+1);
+			if(!enterRoundScore(gameStage, i+1, p1Score.get(i), p2Score.get(i), 1, 7)) {
+				printInstructions(gameStage,i+1);
+				// Throw popup exception
 				return false;
-				
+				//gametype  0 -> normal game 1-> extraTime 2-> pendelties 
 			}
+			
 		}
-		// update view that all ok 
-		return true;
+		//DEFINITIONS
+		// gameNumber / gameId - Define game in current round ->
+		// -> (8 players - 4 games -> gameNumber [0,3]first round, [4,5] second round [6] last round)
+		// -> use this to know which players are playing with Model.getPlayersInGivenRound(int gameNumber) 
 		
+		// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football),
+		// in tennis [1=2=3=...n (till tieBreak)] // in basketball [0-3] reg, & [4,+] are extraTime
+		
+		// GAMESTAGE:
+		//	Football: [0,1] are reg halfs , [2,3] are extra time halfs , [4-8] are penalties, 8+ are 1shot penalties..
+		// 	Basketball: [0,1,2,3] are reg quarters , 4+ are extra times
+		//	Tennis: [0-4] all regular rounds.
+		
+		
+		return true;
 		
 	}
 	
-	private static void printInstructions(String gameType,int gameStage) {
-		// TODO print to view a short explenation of valid values
+	private static void printInstructions(int gameType,int gameStage) {
+		// TODO print to view a short explanation of valid values
 		// maybe add a red boxes on invalid rounds 
 		System.out.println("entered printInstructions");
+		
+		// 
 	}
 	
 	

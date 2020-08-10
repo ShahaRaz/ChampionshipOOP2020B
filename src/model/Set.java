@@ -4,7 +4,7 @@ import java.util.Vector;
 
 public class Set {
 
-    protected Vector<Player> list;
+    private Vector<Player> list;
 
    
     public Set() {
