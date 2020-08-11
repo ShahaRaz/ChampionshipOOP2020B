@@ -7,8 +7,8 @@ public class Tournament {
 	public enum gameType {
 		Tennis, Basketball, Soccer
 	};
-	
-	private  gameType type;
+
+	private gameType type;
 	private Set teams;
 
 	public Tournament() {
@@ -24,30 +24,33 @@ public class Tournament {
 	}
 
 	public void secondRound() {
-		Set teams4=new Set();
+		Set teams4 = new Set();
 		for (int i = 0; i < getNumOfPlayerInRound(); i++) {
-			if(teams.get(i).getWinsCounter()==1)
-				teams4.add(teams.get(i));		
+			if (teams.get(i).getWinsCounter() == 1)
+				teams4.add(teams.get(i));
 		}
 		setTeams(teams4);
 		System.out.println("moving to the semi-finals ! - 4 teams are left");
 	}
+
 	public void thirdRound() {
-		Set teams2=new Set();
+		Set teams2 = new Set();
 		for (int i = 0; i < getNumOfPlayerInRound(); i++) {
-			if(teams.get(i).getWinsCounter()==2)
-				teams2.add(teams.get(i));		
+			if (teams.get(i).getWinsCounter() == 2)
+				teams2.add(teams.get(i));
 		}
 		setTeams(teams2);
 		System.out.println("moving to the finals ! - 2 teams are left");
 	}
+
 	public Player getWinner() {
 		for (int i = 0; i < getNumOfPlayerInRound(); i++) {
-			if(teams.get(i).getWinsCounter()==3)
+			if (teams.get(i).getWinsCounter() == 3)
 				return teams.get(i);
 		}
 		return null;
 	}
+
 	public Set getTeams() {
 		return teams;
 	}
@@ -63,19 +66,20 @@ public class Tournament {
 	public void showParticipants() {
 		teams.showList();
 	}
+
 	public int getNumOfPlayerInRound() {
 		return teams.size();
 	}
+
 	public void reset() {
 		for (int i = 0; i < getNumOfPlayerInRound(); i++) {
 			teams.reset();
-			
+
 		}
 	}
-	
-	
+
 	public int getNumberOfRounds(int gameState) {
-		
+
 		return 6; // TODO FIX ME
 //		if(!isTieBreaker) {
 //		switch(type) {
@@ -111,105 +115,115 @@ public class Tournament {
 //			 }	
 //		}
 	}
-	
 
-	public int setWinner(ArrayList<Integer> scoresPlayer1, ArrayList<Integer> scoresPlayer2 ) {
-		//TODO - return [i] if player [i] wins [i=1/2] , return 0 if tie
-		// WRITE ME 
+	public int setWinner(ArrayList<Integer> scoresPlayer1, ArrayList<Integer> scoresPlayer2) {
+		// TODO - return [i] if player [i] wins [i=1/2] , return 0 if tie
+		// WRITE ME
 		return 0;
 	}
-	
-	
-	private boolean enterRoundScore(int gameType,int gameStage,
-			int p1Score,int p2Score, int minResult, int maxResult) {
-		// gameStage will say which part (for example, basketBall have 4 quarters, then 2 even-brakers, 
+
+	private boolean enterRoundScore(int gameType, int gameStage, int p1Score, int p2Score, int sum1, int sum2) {
+		// gameStage will say which part (for example, basketBall have 4 quarters, then
+		// 2 even-brakers,
 		// so valid input for basketball games would be betweeen 1& 6 //
-		// must use the entire logic in the model for each score 
-		// FIXME 
-		
-		if (minResult < 0)
-			minResult = 0;
-		if(maxResult>100)
-			maxResult=100;
-		
-		switch(type) {
-			case Tennis:
-				if (p1Score > 7 || p2Score > 7 || p1Score < 0 || p2Score < 0
-						|| (Math.abs(p1Score - p2Score) < 2 && (p1Score + p2Score) < 13)
-						|| (p1Score != 6 && p2Score != 6) && (p1Score + p2Score) < 12) {
-					System.out.println("not valid scores , try again"); // fire NOT VALID SCORE
+		// must use the entire logic in the model for each score
+		// FIXME
+
+		switch (type) {
+		case Tennis:
+			if (p1Score > 7 || p2Score > 7 || p1Score < 0 || p2Score < 0
+					|| (Math.abs(p1Score - p2Score) < 2 && (p1Score + p2Score) < 13)
+					|| (p1Score != 6 && p2Score != 6) && (p1Score + p2Score) < 12) {
+				System.out.println("not valid scores , try again"); // fire NOT VALID SCORE
+				return false;
+			} else {
+				if (p1Score > p2Score)
+					sum1++;
+				else
+					sum2++;
+				return true;
+			}
+		case Basketball:
+			if (p1Score < 0 || p2Score < 0) {
+				System.out.println("fire NOT VALID"); // OR THROWS
+				return false;
+			} else {
+				sum1 += p1Score;
+				sum2 += p2Score;
+				return true;
+			}
+		case Soccer:
+			if ((p1Score < 0 || p2Score < 0) && (gameType != 2)) {
+				System.out.println("fire NOT VALID"); // OR THROWS
+				return false;
+			} else {
+				if ((p1Score < 0 || p2Score < 0 || p2Score > 1 || p1Score > 1) && (gameType == 2)) {
+					System.out.println("fire NOT VALID"); // OR THROWS
 					return false;
 				}
-				else 
-					return true;
-			
-			case Basketball:
-				if(p1Score<0||p2Score<0) {
-					System.out.println("fire NOT VALID"); // OR THROWS 
-					return false;
-				}
-				else 
-					return true;
-			case Soccer:
-				if(p1Score<0||p2Score<0) {
-					System.out.println("fire NOT VALID"); // OR THROWS 
-					return false;
-				}
-				else 
-					return true;		
+			}
+			sum1 += p1Score;
+			sum2 += p2Score;
+			return true;
 		}
-		
-		
-		return true; // all 
+
+		return true; // all
 	}
-	
-	protected boolean checkBoard(int gameStage,ArrayList <Integer> p1Score,
-			ArrayList <Integer> p2Score,int gameId) {
-		if (p1Score.size()!=p2Score.size())
-			return false; // fire popup 
-		int totalRoundsPlayed = p1Score.size(); // for readability 
+
+	protected boolean checkBoard(int gameType, ArrayList<Integer> p1Score, ArrayList<Integer> p2Score,
+			int gameId) {
+		if (p1Score.size() != p2Score.size())
+			return false; // fire popup
+		int sum1 = 0, sum2 = 0;
+		int totalRoundsPlayed = p1Score.size(); // for readability
 		for (int i = 0; i < totalRoundsPlayed; i++) {
-			if(!enterRoundScore(gameStage, i+1, p1Score.get(i), p2Score.get(i), 1, 7)) {
-				printInstructions(gameStage,i+1);
+			if (!enterRoundScore(gameType, i + 1, p1Score.get(i), p2Score.get(i), sum1, sum2)) {
+				printInstructions(gameType, i + 1);
 				// Throw popup exception
 				return false;
-				//gametype  0 -> normal game 1-> extraTime 2-> pendelties 
+				// gametype 0 -> normal game 1-> extraTime 2-> pendelties
 			}
-			
+
 		}
-		//DEFINITIONS
-		// gameNumber / gameId - Define game in current round ->
-		// -> (8 players - 4 games -> gameNumber [0,3]first round, [4,5] second round [6] last round)
-		// -> use this to know which players are playing with Model.getPlayersInGivenRound(int gameNumber) 
-		
-		// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football),
-		// in tennis [1=2=3=...n (till tieBreak)] // in basketball [0-3] reg, & [4,+] are extraTime
-		
-		// GAMESTAGE:
-		//	Football: [0,1] are reg halfs , [2,3] are extra time halfs , [4-8] are penalties, 8+ are 1shot penalties..
-		// 	Basketball: [0,1,2,3] are reg quarters , 4+ are extra times
-		//	Tennis: [0-4] all regular rounds.
-		
-		
+		if (sum1 > sum2) {
+			// player 1 win logic
+			teams.upWins(gameId);
+		} else {
+			if (sum2 > sum1) {
+				// player 2 win logic
+				teams.upWins(gameId + 1);
+			} else {
+				// draw
+				System.out.println("scores are equal we still don't have a winner");
+				
+			}
+		}
 		return true;
-		
 	}
-	
-	private static void printInstructions(int gameType,int gameStage) {
+
+	private void printInstructions(int gameType, int gameStage) { /* need to change syso to fx messages*/
 		// TODO print to view a short explanation of valid values
-		// maybe add a red boxes on invalid rounds 
-		System.out.println("entered printInstructions");
-		
-		// 
+		// maybe add a red boxes on invalid rounds
+		switch (type) {
+		case Tennis:
+			System.out.println(
+					"set scores need to be between [0-6] while 6 is the goal in order"
+					+ " to win \n with difference of 2 points at least,"
+					+ " if both players win at least 5 games the winner must win 7 games ");
+		case Soccer:
+			if(gameType!=2) 
+				System.out.println("scores must be higher than 0");			
+			else 
+				System.out.println("we are in deciding penalties phase , goal = 1 , miss = 0"
+						+ " \n other values are not valid!");
+			
+		case Basketball:
+			System.out.println("scores must be higher than 0");
+		}
+
 	}
-	
-	
-	
-
-
 
 }
 
-// TODO Each sport has its own rules, get this logic into class to make it
-// accessable from View
+
 

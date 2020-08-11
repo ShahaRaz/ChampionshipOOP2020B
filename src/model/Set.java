@@ -6,7 +6,10 @@ public class Set {
 
     private Vector<Player> list;
 
-   
+    public void upWins(int index){
+ 	   list.elementAt(index).uppWins(); 
+    }
+
     public Set() {
         list = new Vector<Player>();
     }
