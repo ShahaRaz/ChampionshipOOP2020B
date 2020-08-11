@@ -61,6 +61,18 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 
 
 	@Override
+	public void modelAlertScoresNotValid(int gameId, String headLine, String message) {
+		theView.alertScoreBoardNotValid(gameId,headLine,message);
+	}
+
+
+	@Override
+	public void modelAnnounceRoundResults(int gameId, String headLine, String message) {
+		theView.announceGameResults(gameId,headLine,message);
+	}
+
+
+	@Override
 	public void viewAskToPlayGame(ArrayList<Integer> p1Score, ArrayList<Integer> p2Score, int gameStage, int gameId) {
 		// view needs to send all the boxes of input to 2 arraylists
 		theModel.checkScoreBoard(gameStage, p1Score, p2Score,gameId);
@@ -85,6 +97,7 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 
 	@Override
 	public void viewAskForGameFormat(int gameId,int gameState) {
+		System.out.println("in new at viewAskForGameFormat(), game state: " +gameState);
 		theModel.sendPlayerNameNRounds(gameId,gameState);
 	}
 
@@ -98,6 +111,7 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 		//DEFINITIONS
 	// gameNumber / gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3]first round, [4,5] second round [6] last round)
 	// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football), in tennis [1=2=3=...n (till tieBreak)]
+	// gameType 
 	// numOfRounds - how many rounds there are in a game -> 
 	//	-> for example: football has 2 rounds in regular, 2 rounds in extraTime & 5 rounds[shots] in penalties
 

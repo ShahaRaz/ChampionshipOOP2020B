@@ -1,28 +1,19 @@
 package view;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -34,24 +25,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import listeners.ChampionshipListenable;
 import listeners.ViewListenable;
 
 
 public class View {
 	private static final int NUMBER_OF_PLAYERS = 8;
-	private static final double ENLRAGMENT_FACTOR=1.5;
+	private static final double ENLRAGMENT_FACTOR = 1.5;
 	private static final int CONTESTERS_IN_ROUND=2;
-	private RadioButton rbHouse, rbBuilding, rbCastle;
-	private CheckBox cbRoof, cbWindows, cbDoor;
-	private ComboBox<String> roofColors;
-	private ToggleGroup tg;
+	
+	
+	
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
-	private HBox hb;
-	private Text txt;
+
 	private HBox hbAddPlayer;
 	private ArrayList<TextField> tfPlayers;
 	private int nextPlayerIndex=0; // in order insert new names to textFields
@@ -63,10 +49,11 @@ public class View {
 	
 	// _____________________________________ 10Aug ->
 	private ArrayList <TextField> tfPlayerNames2;
-	
+	Stage gameStage ;
 	
 	private ArrayList<ViewListenable> allListeners;
-	
+	RadioButton gameType;
+
 	
 	public View(Stage stage)
 	{
@@ -125,6 +112,7 @@ public class View {
 		vbNamesTemp2 = new VBox();
 		for(int j=0;j<i;j++,n++) {
 			tfTemp2 = new TextField();
+			tfTemp2.setText(""+n);
 			tfTemp2.setEditable(false); // disable direct editing of cells.
 			tfTemp2.setPrefHeight(10*ENLRAGMENT_FACTOR);
 			tfPlayerNames2.add(tfTemp2); // add to the TextField arrayList [index n]
@@ -176,7 +164,6 @@ public class View {
 	vbNamesInRound.setSpacing(10*ENLRAGMENT_FACTOR);
 	vbNamesInRound.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
 	//TextField
-//	TextField tfName = new TextField();
 	for (int i = 0; i < NUMBER_OF_PLAYERS; i++) { // make it dynamic layer
 		TextField tfTemp=new TextField();
 		tfTemp.setEditable(false); // disable direct editing of cells.
@@ -185,8 +172,6 @@ public class View {
 	vbNamesInRound.getChildren().addAll(tfPlayers);
 	vbNamesInRound.setAlignment(Pos.CENTER);
 	
-
-	//hirarcy hierarchy
 	///____________TODO  CREATE ARRAY OF US ______________ Finish
 	//FIXME return to normal Switch next two lines (comment out and uncomment out)
 	hbMain.getChildren().addAll(vbNamesInRound,vbPlayGames);
@@ -252,19 +237,12 @@ public class View {
 			Integer gameNum2 = Integer.parseUnsignedInt(btnContent, 6, btnContent.length(), 10);
 			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
 			System.out.println("button num " + gameNum2 + " pressed");
-			// maybe paint it so we know which game is on now 
 			firePlayGameBtn(gameNum2,0);
 		}	
 	}
 	
 
 	
-	
-	
-	
-
-	
-
 	private void setVbStartGameUnderAddPlayer(VBox vbMiddleStartGame,VBox vbChooseGameYype) {
 		Button btnStartGame = new Button();
 		btnStartGame.setText("Start Championship");
@@ -277,12 +255,9 @@ public class View {
 						bpRoot.getChildren().remove(vbMiddleStartGame);
 						bpRoot.getChildren().remove(vbChooseGameYype);
 						fireStartChampionship((gameType));
-						//opensPlayGameWindow("Test1", "Test2");
 						System.out.println("After opensPlayGameWindow");
 					}
-//				for(ViewListenable l : allListeners) {
-//					l.viewAskToPlayGame(null);
-//				}
+
 			}
 		
 		}); // inner class closure
@@ -306,22 +281,41 @@ public class View {
 	}
 
 	protected String getGameType() {
-		RadioButton chk;
-		chk = (RadioButton)tglGameType.getSelectedToggle(); // Cast object to radio button
-		if (chk==null) {
+		gameType = (RadioButton)tglGameType.getSelectedToggle(); // Cast object to radio button
+		if (gameType==null) {
 	    	popUpShortMassage("Can't start game", "please select game type", 200, 100);
 	    	return "";
 		}
-        return chk.getText();
-
-
+        return gameType.getText();
+	}
+	
+	private String getStageName(int gameStage) {
+		String sportName = getGameType();
+		if(sportName.contains("Basketball")) {
+			if(gameStage<5)
+				return "Main Game";
+			else
+				return "Extra Time";
+		}
+		else if(sportName.contains("Soccer")) {
+			if(gameStage<2)
+				return "Main Game";
+			else if (gameStage>1&&gameStage<4) {
+				return "ExtraTime";
+			}
+			else {
+				return "Penalties";
+			}
+		}
+		else return "Main Game";
+		
 	}
 	
 	public void opensPlayGameWindow(int numOfRounds,String player1,String player2,int gameState,int gameId) {
 		// number of rounds (inorder to know how many textboxes to open
 		String[] tempStrArr = {player1,player2}; // for the loop..
-		Stage gameStage = new Stage();
-		gameStage.setTitle("PlayGame");
+		gameStage = new Stage();
+		gameStage.setTitle(getGameType() + getStageName(gameState));
 		VBox vbPlayerSeperator = new VBox();
 		vbPlayerSeperator.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
 		vbPlayerSeperator.setSpacing(10*ENLRAGMENT_FACTOR);
@@ -353,11 +347,14 @@ public class View {
 			TextField tfTempSC;
 			for (int j = 0; j < numOfRounds; j++) {
 				tfTempSC = new TextField();
-				tfTempSC.setText("R" + (j+1)); 
+				tfTempSC.setText("Rnd" + (j+1)); 
 				tfTempSC.setMinWidth(15*ENLRAGMENT_FACTOR);
+				tfTempSC.setAlignment(Pos.CENTER);
 				tfScoreCells.add(tfTempSC);
 			}
+			
 			hbTempPS.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, null, null)));
+			
 			
 			hbTempPS.getChildren().addAll(tfScoreCells); //hbTempPS[1+j] (each 1 of them is
 			hbPlayerScores.add(hbTempPS);// hbPlayerScores[i]
@@ -382,7 +379,7 @@ public class View {
 					temp2 = ((TextField)((HBox) hbPlayerScores.get(1)).getChildren().get(1+j)).getText();
 					if(!(temp1.matches("\\d*"))||(!(temp2.matches("\\d*")))) {
 						popUpShortMassage("Invalid input" ,
-								"In round: " + (j+1) + "  Enter only integers " , 300, 150);
+								"In round: " + (j+1) + "  Enter only Positive integers " , 300, 150);
 						scoresValid=false;
 						break;
 					}
@@ -394,8 +391,8 @@ public class View {
 				}
 					// if(temp1) parse to integer try catch or set textfields to accept only digits
 					if(scoresValid) {
-						fireCheckResults(p1Results, p2Results, 0,gameId); // gameStage -- where to determain
-						gameStage.close();
+						fireCheckResults(p1Results, p2Results, gameState,gameId); // gameStage -- where to determain
+//						gameStage.close();
 						// paint playButton in green
 					}
 					else {
@@ -546,9 +543,9 @@ public class View {
 		for (int i = 0; i < p1Score.size(); i++) {
 			System.out.print("p1 score in round " + (i+1) + " is " + p1Score.get(i));
 			System.out.println("\tp2 score in round " + (i+1) + " is: "+p2Score.get(i));
-			for (ViewListenable l : allListeners) {
-				l.viewAskToPlayGame(p1Score, p2Score, gameStage, gameId);
 			}
+		for (ViewListenable l : allListeners) {
+			l.viewAskToPlayGame(p1Score, p2Score, gameStage, gameId);
 		}
 		
 		//TODO Continue me -> Do check b4 if the we're happy with the logic.
@@ -576,6 +573,26 @@ public class View {
 		popUpShortMassage("Error", "name not valid! ," + message , 200, 100);
 	}
 
+	public void alertScoreBoardNotValid(int gameId, String headLine, String message) {
+		popUpShortMassage(headLine, message, 400, 100); // delete gameId if never used
+	}
+
+	public void announceGameResults(int gameId, String headLine, String message) {
+		if(headLine.contains("TIE")) {
+			gameStage.close();
+			popUpShortMassage(headLine, message, 400, 100);
+			String[] getStage = message.split("\\s+");
+			int gameStage = Integer.parseInt(getStage[0], 0, getStage[0].length(), 10); 
+			firePlayGameBtn(gameId,gameStage); // fire another window 
+		}
+		else { // winner in round
+			popUpShortMassage(headLine, message, 200, 100);
+			gameStage.close();
+			//tfPlayerNames2.get(gameId).setText(headLine);
+			tfPlayerNames2.get((NUMBER_OF_PLAYERS)+gameId).setText(headLine);			
+		}
+	}
+
 	public void registerListener(ViewListenable l) {
 		allListeners.add(l);
 	}
@@ -590,151 +607,3 @@ public class View {
 
 
 
-
-//public class View {
-//	private Group root;
-//	private RadioButton rbHouse, rbBuilding, rbCastle;
-//	private CheckBox cbRoof, cbWindows, cbDoor;
-//	private ComboBox<String> roofColors;
-//	private ToggleGroup tg;
-//	private BorderPane bp; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
-//	private HBox hb;
-//	private Text txt;
-//	private ArrayList<Rectangle> allWindows;
-//	public View(Stage stage)
-//	{
-//		root = new Group();
-//		
-//		tg = new ToggleGroup();
-//		rbHouse = new RadioButton("House");
-//		rbHouse.setSelected(true);
-//		rbHouse.setToggleGroup(tg);
-//		rbBuilding = new RadioButton("Building");
-//		rbBuilding.setToggleGroup(tg);
-//		rbCastle = new RadioButton("Castle");
-//		rbCastle.setToggleGroup(tg);
-//		
-//		cbRoof = new CheckBox("Roof");
-//		cbWindows = new CheckBox("Windows");
-//		cbDoor = new CheckBox("Door");
-//		
-//		VBox vbLeft = new VBox();
-//		vbLeft.getChildren().addAll(rbHouse, rbBuilding, rbCastle);
-//		vbLeft.setAlignment(Pos.CENTER_LEFT);
-//		
-//		VBox vbRight = new VBox();
-//		vbRight.getChildren().addAll(cbRoof, cbWindows, cbDoor);
-//		vbRight.setAlignment(Pos.CENTER_LEFT);
-//		
-//		Pane drawPane = new Pane();
-//		drawPane.getChildren().add(root);
-//		
-//		// add windows as controls
-//		allWindows = new ArrayList<>();
-//		
-//		
-//		// roof colors
-//		roofColors = new ComboBox<>();
-//		roofColors.getItems().addAll("Red","Green","Gray");
-//		roofColors.setValue("Red");
-//		txt = new Text("Roof Colors: ");
-//		
-//		// Horizontal box for combobox and its title
-//		hb = new HBox();
-////		hb.getChildren().addAll(txt,roofColors);
-//		hb.setAlignment(Pos.CENTER);
-//		
-//		// border pane
-//		bp = new BorderPane();
-//		bp.setLeft(vbLeft);
-//		bp.setRight(vbRight);
-//		bp.setCenter(drawPane);
-//		bp.setBottom(hb);
-//		
-//		Scene scene = new Scene(bp,500,500);
-//		stage.setScene(scene);
-//		stage.show();
-//	}
-//	
-//	public void update(Model m)
-//	{
-//		root.getChildren().clear(); // clean the previous view
-//		m.show(root);
-//		if(cbWindows.isSelected())
-//			root.getChildren().addAll(allWindows);
-//	}
-//	
-//	public String getKind() {
-//		if(rbHouse.isSelected())
-//			return rbHouse.getText();
-//		else if(rbBuilding.isSelected())
-//			return rbBuilding.getText();
-//		else return rbCastle.getText();
-//	}
-//	
-//	// change listener has been created in Control
-//	public void addChangeListenerToToggleGroup(ChangeListener<Toggle> chl) {
-//		tg.selectedToggleProperty().addListener(chl);
-//	}
-//	
-//	public void addChangeListenerToRoof(ChangeListener<Boolean> cl) {
-//		cbRoof.selectedProperty().addListener(cl);
-//	}
-//	
-//	public void addChangeListenerToRoofColors(ChangeListener<String> cl) {
-//		roofColors.valueProperty().addListener(cl); // connect roofColors to cl that was defined in Controller
-//	}
-//	
-//	public boolean getRoofIsSelected() {
-//		return cbRoof.isSelected();
-//	}
-//	
-//	public boolean getWindowsIsSelected() {
-//		return cbWindows.isSelected();
-//	}
-//	
-//	public boolean getDoorIsSelected() {
-//		return cbDoor.isSelected();
-//	}
-//	
-//	public String getRoofColor() {
-//		return roofColors.getValue();
-//	}
-//	
-//	public void addRoofColorsComboBox() {
-//		hb.getChildren().addAll(txt,roofColors);
-//	}
-//	public void hideRoofColorsComboBox() {
-//		hb.getChildren().clear();
-//	}
-//	
-//	public void addChangeListenerToDoor(ChangeListener<Boolean> listener) {
-//		cbDoor.selectedProperty().addListener(listener);
-//	}
-//	
-//	public void addChangeListenerToWindows(ChangeListener<Boolean> listener) {
-//		cbWindows.selectedProperty().addListener(listener);
-//	}
-//	
-//	// when the windows check box is unselected we don't need windows
-//	public void removeWindows() {
-//		allWindows.clear();
-//	}
-//	
-//	public void addWindow(Rectangle window) {
-//		allWindows.add(window);
-//	}
-//	
-//	public int getWindowIndex(Object o) {
-//		return allWindows.indexOf(o);
-//	}
-//	
-//	public void changeWindowColor(int index) {
-//		if(allWindows.get(index).getFill()==Color.BLACK) {
-//			allWindows.get(index).setFill(Color.YELLOW);
-//		}
-//		else 	
-//			allWindows.get(index).setFill(Color.BLACK);
-//
-//	}
-//}

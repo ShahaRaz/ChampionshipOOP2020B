@@ -24,12 +24,6 @@ public class Model {
 		System.out.println(this.tour.getType().name());
 		mainMenu(scan);
 	}
-	// cnstrcrr - > 1) game type -> 2)
-
-	public void registerListener(ChampionshipListenable l) {
-		allListeners.add(l);
-	}
-
 	private void chooseGameType(Scanner scan) {
 		boolean flag = false;
 		String gameMenu = "Menu:\n 1) Tennis (1)\n 2) Basketball (2)\n" + " 3) Soccer (3)\n";
@@ -109,7 +103,6 @@ public class Model {
 		for (int i = 0; i < tour.getNumOfPlayerInRound(); i += 2) {
 			playGame(tour, tour.getTeams().get(i), tour.getTeams().get(i + 1), scn);
 			
-			//FIRE  POPUP "
 		}
 		for (int i = 0; i < tour.getNumOfPlayerInRound(); i++) {
 			if (tour.getTeams().get(i).getWinsCounter() == 1)
@@ -184,8 +177,6 @@ public class Model {
 			do {
 				score1 = enterPlayerScore(p1, "points", "# " + i, "quarter", 0, 60, scanBasketball);
 				score2 = enterPlayerScore(p2, "points", "# " + i, "quarter", 0, 60, scanBasketball);
-//				if (score1 < 0 || score2 < 0)
-//					System.out.println("there is an issue with the scores you entered , try again");
 			} while (score1 < 0 || score2 < 0);
 			sum1 += score1;
 			sum2 += score2;
@@ -201,19 +192,12 @@ public class Model {
 			while (sum1 == sum2) {
 				do {
 					extraTimeCounter++;
-//					System.out.println("Please enter how many points " + p1.getName() + " scored in the #"
-//							+ extraTimeCounter + " extra time ");
-//					score1 = scanBasketball.nextInt();
+
 					score1 = enterPlayerScore(p1, "points", "# " + extraTimeCounter, "Extra time half", 0, 60,
 							scanBasketball);
-//					System.out.println("Please enter how many points " + p2.getName() + " scored in the #"
-//							+ extraTimeCounter + " extra time");
-//					score2 = scanBasketball.nextInt();
+
 					score2 = enterPlayerScore(p2, "points", "# " + extraTimeCounter, "Extra time half", 0, 60,
 							scanBasketball);
-//
-//					if (score1 < 0 || score2 < 0)
-//						System.out.println("there is an issue with the scores you entered , try again");
 				} while (score1 < 0 || score2 < 0);
 				sum1 += score1;
 				sum2 += score2;
@@ -359,10 +343,28 @@ public class Model {
 
 		}
 	}
-	public void checkScoreBoard(int gameType,ArrayList <Integer> p1Score
+	public void checkScoreBoard(int gameStage,ArrayList <Integer> p1Score
 			,ArrayList <Integer> p2Score,int gameId) {
-		tour.checkBoard(gameType, p1Score, p2Score,gameId);
+		String result = tour.checkBoard(gameStage, p1Score, p2Score,gameId);
+		tour.resetSums();
+		
+		String[] splitCase = result.split("@",2);
+		if(splitCase[0].contains("ERROR")) {
+			fireModelAlertScoresNotValid(gameId,splitCase[0] ,splitCase[1]); 
+		}
+		else if(splitCase[0].contains("TIE")) {
+			fireModelAnnounceRoundResults(gameId,"TIE in round #" + gameId ,splitCase[1]); 
+		}
+		else if(splitCase[1].contains("Won")) {
+			fireModelAnnounceRoundResults(gameId,splitCase[0] ,splitCase[1]); 
+			System.out.println("return winner");
+		}
+		else 
+			System.out.println("Error at checkScoreBoard, check me in Model 378");
+		
 	}
+	
+
 	
 
 	@Override
@@ -415,12 +417,6 @@ public class Model {
 		}
 	}
 
-	private void fireModelUpdateNoRoom() {
-		for(ChampionshipListenable cl : allListeners) {	
-			cl.modelUpdateNoRoom();
-		}
-	}
-
 	private void fireModelAddedName(String name) {
 		for(ChampionshipListenable cl : allListeners) {
 			cl.modelAddedName(name);
@@ -449,13 +445,35 @@ public class Model {
 
 	private void fireModelSendRoundFormat(int numOfRounds, String player1, String player2,int gameState,int gameId) {
 		 for(ChampionshipListenable cl : allListeners) {
+			 System.out.println("in model fireModelSendRoundFormat() game stats: " + gameState);
 			 cl.modelSendGameFormat(numOfRounds,player1,player2,gameState,gameId);
 		 }
-
+	}
+	private void fireModelAlertScoresNotValid(int gameId,String headLine, String message ) {
+		 for(ChampionshipListenable cl : allListeners) {
+			 cl.modelAlertScoresNotValid(gameId,headLine,message);
+		 }
+	}
+	
+	private void fireModelAnnounceRoundResults(int gameId, String headLine, String message) {
+		 for(ChampionshipListenable cl : allListeners) {
+			 cl.modelAnnounceRoundResults(gameId,headLine,message);
+		 }
 	}
 
+	// cnstrcrr - > 1) game type -> 2)
+	
+	public void registerListener(ChampionshipListenable l) {
+		allListeners.add(l);
+	}
+
+	//announce 
+
 	// gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3])
-	// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football), in tennis [1=2=3=...n (till tieBreak)]
+	// GAMESTAGE / gameState:
+			//	Football: [0,1] are reg halfs , [2,3] are extra time halfs , [4-8] are penalties, 8+ are 1shot penalties..
+			// 	Basketball: [0,1,2,3] are reg quarters , 4+ are extra times
+			//	Tennis: [0-4] all regular rounds.
 	// numOfRounds - how many rounds there are in a game -> 
 	//	-> for example: football has 2 rounds in regular, 2 rounds in extraTime & 5 rounds[shots] in penalties
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Tournament {
+	int sum1,sum2;
 	public enum gameType {
 		Tennis, Basketball, Soccer
 	};
@@ -79,50 +80,27 @@ public class Tournament {
 	}
 
 	public int getNumberOfRounds(int gameState) {
-
-		return 6; // TODO FIX ME
-//		if(!isTieBreaker) {
-//		switch(type) {
-//		case Basketball:
-//			return 4;
-//			break;
-//			
-//		case Soccer:
-//			return 2;
-//			break;
-//			
-//		case Tennis:
-//			return 5; //TODO  if 3-0 happens, we also stop
-//			break;
-//			
-//		default: 
-//			return -1;
-//		 }
-//		}
-//		else { // it is a tie breaker
-//			switch(type) {
-//			case Basketball:
-//				return 2;
-//				break;
-//			case Soccer: // penalty
-//				return 5;
-//				break;
-//			case Tennis:
-//				return 2;
-//				break;
-//			default: 
-//				return -1;
-//			 }	
-//		}
+		switch (type) {
+		case Basketball:
+			if (gameState < 4)
+				return 4;
+			else
+				return 1;
+		case Soccer:
+			if (gameState < 4)
+				return 2;
+			else if (gameState == 4)
+				return 5;
+			else // gameState > 8 penalties 1-1
+				return 1;
+		case Tennis:
+			return 5; // TODO if 3-0 happens, we also stop
+		default:
+			return -1; // noTypeSelected
+		}
 	}
 
-	public int setWinner(ArrayList<Integer> scoresPlayer1, ArrayList<Integer> scoresPlayer2) {
-		// TODO - return [i] if player [i] wins [i=1/2] , return 0 if tie
-		// WRITE ME
-		return 0;
-	}
-
-	private boolean enterRoundScore(int gameType, int gameStage, int p1Score, int p2Score, int sum1, int sum2) {
+	private boolean enterRoundScore(int gameStage, int p1Score, int p2Score) {
 		// gameStage will say which part (for example, basketBall have 4 quarters, then
 		// 2 even-brakers,
 		// so valid input for basketball games would be betweeen 1& 6 //
@@ -131,6 +109,7 @@ public class Tournament {
 
 		switch (type) {
 		case Tennis:
+			
 			if (p1Score > 7 || p2Score > 7 || p1Score < 0 || p2Score < 0
 					|| (Math.abs(p1Score - p2Score) < 2 && (p1Score + p2Score) < 13)
 					|| (p1Score != 6 && p2Score != 6) && (p1Score + p2Score) < 12) {
@@ -153,11 +132,11 @@ public class Tournament {
 				return true;
 			}
 		case Soccer:
-			if ((p1Score < 0 || p2Score < 0) && (gameType != 2)) {
+			if ((p1Score < 0 || p2Score < 0) && (gameStage != 2)) {
 				System.out.println("fire NOT VALID"); // OR THROWS
 				return false;
 			} else {
-				if ((p1Score < 0 || p2Score < 0 || p2Score > 1 || p1Score > 1) && (gameType == 2)) {
+				if ((p1Score < 0 || p2Score < 0 || p2Score > 1 || p1Score > 1) && (gameStage == 2)) {
 					System.out.println("fire NOT VALID"); // OR THROWS
 					return false;
 				}
@@ -170,60 +149,73 @@ public class Tournament {
 		return true; // all
 	}
 
-	protected boolean checkBoard(int gameType, ArrayList<Integer> p1Score, ArrayList<Integer> p2Score,
-			int gameId) {
-		if (p1Score.size() != p2Score.size())
-			return false; // fire popup
-		int sum1 = 0, sum2 = 0;
+	protected String checkBoard(int gameStage, ArrayList<Integer> p1Score, ArrayList<Integer> p2Score, int gameId) {
+		sum1 = 0;
+		sum2 = 0;
+		int i=0;
 		int totalRoundsPlayed = p1Score.size(); // for readability
-		for (int i = 0; i < totalRoundsPlayed; i++) {
-			if (!enterRoundScore(gameType, i + 1, p1Score.get(i), p2Score.get(i), sum1, sum2)) {
-				printInstructions(gameType, i + 1);
-				// Throw popup exception
-				return false;
-				// gametype 0 -> normal game 1-> extraTime 2-> pendelties
+		for(Integer ingr:p1Score) {
+			System.out.print(ingr);
+		}
+		System.out.println("\nin Tour.checkBoard() , totalRoundsPlayed = " + totalRoundsPlayed+"\ni= " + i);
+		for (; i < totalRoundsPlayed; i++) {
+			System.out.println("i = " + i + "sum1 = " + sum1 + "\tsum2 = " + sum2);
+			if (!enterRoundScore(i, p1Score.get(i), p2Score.get(i)))  { //updates sum1&sum2
+				return printInstructions(i + 1);			
 			}
 
 		}
+		System.out.println("sum1 = " + sum1 + "\tsum2 = " + sum2);
+
+		String winnerName;
 		if (sum1 > sum2) {
 			// player 1 win logic
-			teams.upWins(gameId);
+			winnerName=teams.get(2*gameId).getName();
+			teams.upWins(2*gameId);
+			return winnerName + "@"  + winnerName + "Won and go to next stage!";
+			
 		} else {
 			if (sum2 > sum1) {
-				// player 2 win logic
-				teams.upWins(gameId + 1);
+				winnerName=teams.get((2*gameId)+1).getName();
+				teams.upWins((2*gameId )+ 1);
+				return winnerName + "@"  + winnerName + "Won and go to next stage!";
 			} else {
 				// draw
-				System.out.println("scores are equal we still don't have a winner");
-				
+				gameStage=gameStage+i;
+				return"TIE@" + gameStage +" rounds and scores are equal we still don't have a winner";
+
 			}
 		}
-		return true;
 	}
 
-	private void printInstructions(int gameType, int gameStage) { /* need to change syso to fx messages*/
+	private String printInstructions(int gameStage) { /* need to change syso to fx messages */
 		// TODO print to view a short explanation of valid values
 		// maybe add a red boxes on invalid rounds
+		
 		switch (type) {
 		case Tennis:
-			System.out.println(
-					"set scores need to be between [0-6] while 6 is the goal in order"
+			return"ERROR in round #" +gameStage + "@ set scores need to be between [0-6] while 6 is the goal in order"
 					+ " to win \n with difference of 2 points at least,"
-					+ " if both players win at least 5 games the winner must win 7 games ");
+					+ " if both players win at least 5 games the winner must win 7 games ";
 		case Soccer:
-			if(gameType!=2) 
-				System.out.println("scores must be higher than 0");			
-			else 
-				System.out.println("we are in deciding penalties phase , goal = 1 , miss = 0"
-						+ " \n other values are not valid!");
-			
-		case Basketball:
-			System.out.println("scores must be higher than 0");
-		}
+			if (gameStage <5)
+				return"ERROR in round #" +gameStage + "@scores must be higher than 0";
+			else
+				return
+						"ERROR in round #" +gameStage + "@we are in deciding penalties phase , goal = 1 , miss = 0"
+				+ " \n other values are not valid!";
 
+		case Basketball:
+			return "ERROR in round #" +gameStage + "@scores must be higher than 0";
+			
+		default: 
+			return "ERROR no game type selected!@please select from the radio-box";
+		}
 	}
+	protected void resetSums() {
+		sum1=0;
+		sum2=0;
+	}
+	
 
 }
-
-
-
