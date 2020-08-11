@@ -52,15 +52,17 @@ public class View {
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 	private HBox hb;
 	private Text txt;
-	HBox hbAddPlayer;
-	ArrayList<TextField> tfPlayers;
+	private HBox hbAddPlayer;
+	private ArrayList<TextField> tfPlayers;
 	private int nextPlayerIndex=0; // in order insert new names to textFields
-	ArrayList<Button> btnsPlayGames;
-	ToggleGroup tglGameType;
-	VBox vbChooseGameYype;
-	VBox vbMiddleStartGame;
-	VBox vbPlayGames;
+	private ArrayList<Button> btnsPlayGames;
+	private ToggleGroup tglGameType;
+	private VBox vbChooseGameYype;
+	private VBox vbMiddleStartGame;
+	private VBox vbPlayGames; 
 	
+	// _____________________________________ 10Aug ->
+	private ArrayList <TextField> tfPlayerNames2;
 	
 	
 	private ArrayList<ViewListenable> allListeners;
@@ -102,7 +104,7 @@ public class View {
 	//_____________________________________ DYNAMICLY MAKE ALL ORGANS OF MAIN BOX_________________
 	BtnPlayGameEventHandler2 btnPlayGameEvent2 = new BtnPlayGameEventHandler2();	
 	ArrayList <VBox> vbNamesInRoundLbls2 = new ArrayList<VBox>();
-	ArrayList <TextField> tfPlayerNames2 = new ArrayList<TextField>();
+	tfPlayerNames2 = new ArrayList<TextField>();
 	
 	ArrayList <VBox> vbPlayBtns2 = new ArrayList<VBox>();
 	ArrayList <Button> btnPlayGame2 = new ArrayList<Button>();
@@ -113,107 +115,55 @@ public class View {
 	VBox vbPlayTemp2;
 	Button btnTemp2;
 	
+	
+	
 	HBox hbMainView2 = new HBox();
 	int n=0,b=0,counter=0;// Names , Buttons , main round counter
 	// |||||||||| i = Log2n || n = (Log2n)*n || b  = (Log2n)*(n/2) ||||||||||
-	for (int i = NUMBER_OF_PLAYERS; i > 1 ; i=i/2,counter++) { // runs log2n times
+	for (int i = NUMBER_OF_PLAYERS; i >= 1 ; i=i/2,counter++) { // runs log2n times
 		// add VB of names  
 		vbNamesTemp2 = new VBox();
 		for(int j=0;j<i;j++,n++) {
 			tfTemp2 = new TextField();
 			tfTemp2.setEditable(false); // disable direct editing of cells.
+			tfTemp2.setPrefHeight(10*ENLRAGMENT_FACTOR);
 			tfPlayerNames2.add(tfTemp2); // add to the TextField arrayList [index n]
 			vbNamesTemp2.getChildren().add(tfTemp2); // add to Current VBox [index k]
 		}
+		vbNamesTemp2.setAlignment(Pos.CENTER);
+		vbNamesTemp2.setSpacing((8*(1+counter))*ENLRAGMENT_FACTOR);
+		vbNamesTemp2.setPadding(new Insets(7*ENLRAGMENT_FACTOR));
 		vbNamesInRoundLbls2.add(vbNamesTemp2); // add Current VBox to arrayList [index counter(i)]
 		
 		
-		
+		if (i!=1) { // in last round we don't need Playbtn(winner there)
 		// add VB of Btns
 		vbPlayTemp2 = new VBox();
 		for(int k=0;k<i/2;k++,b++) { // maybe move k out, so that numbering 
 			btnTemp2 = new Button();
 			btnTemp2.setText("Play #" + b);
 			btnTemp2.setOnAction(btnPlayGameEvent2); // set action
+			btnTemp2.setPrefHeight(10*ENLRAGMENT_FACTOR);
 			btnPlayGame2.add(btnTemp2); // add to Buttons arrayList [index b]
 			vbPlayTemp2.getChildren().add(btnTemp2);  // add to Current VBox [index k]
 			
 		}
+		vbPlayTemp2.setAlignment(Pos.CENTER);
+		vbPlayTemp2.setSpacing((17*(2+counter))*ENLRAGMENT_FACTOR);
 		vbPlayBtns2.add(vbPlayTemp2); // add Current VBox to arrayList [index counter(i)]
 		
 		
 		// adding VBoxes to view 
 		hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(counter),vbPlayBtns2.get(counter));
+		}
+		else {
+			hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(counter));
+
+		}
+		
 	}
-	
-	
-
-//	private void setBtnsPlayGames(int numberOfPlayers) {
-//		vbPlayGames.getChildren().clear();
-//		vbPlayGames.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-//		vbPlayGames.setSpacing(38*ENLRAGMENT_FACTOR);
-//		vbPlayGames.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-//		
-//		
-//		btnsPlayGames.clear();
-//		// TODO maybe add a toggle group for these buttons
-//		BtnPlayGameEventHandler btnPlayGameEvent = new BtnPlayGameEventHandler();
-//		for (int i = 0; i <  (numberOfPlayers/2); i++) { 
-//			Button btnTmp = new Button();
-//			btnTmp.setText("Play game " + i);
-//			btnTmp.setOnAction(btnPlayGameEvent);
-//			btnsPlayGames.add(btnTmp);
-//		}
-//		vbPlayGames.getChildren().addAll(btnsPlayGames);
-//		vbPlayGames.setAlignment(Pos.CENTER);
-//		
-//	}
-//	 // merge somewhere pretty into the code
-//	class BtnPlayGameEventHandler implements EventHandler<ActionEvent>{
-//		
-//		@Override
-//		public void handle(ActionEvent btnPressed) {
-//			int gameNum = btnsPlayGames.indexOf(btnPressed.getSource());
-//			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
-//			System.out.println("button num " + gameNum + " pressed");
-//			// maybe paint it so we know which game is on now 
-//			firePlayGameBtn(gameNum,0);
-//			
-//		}	
-//	}
-	
 
 
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//	ArrayList<VbPlayGameButtonRoundBox> vboxesPlayRoundButtons = new ArrayList<VbPlayGameButtonRoundBox>();
-//		int k=NUMBER_OF_PLAYERS;//	for (int k = NUMBER_OF_PLAYERS; k > 1 ; k=k/2) { // number of rounds FOR EACH ROUND 
-//		VbPlayGameButtonRoundBox vbPlayRound = new VbPlayGameButtonRoundBox(k,ENLRAGMENT_FACTOR);
-//		vbPlayRound.getVBox().addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-//				@Override
-//				public void handle(MouseEvent btnPressed) {
-//					int gameNum = vbPlayRound.getBtnsPlay().indexOf(btnPressed.getSource());					//theModel.changeWindowColor(index);
-//					System.out.println("button num " + gameNum + " pressed");
-//					System.out.println("class of " + btnPressed.getTarget().getClass());
-//					((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green"); 
-//					firePlayGameBtn(gameNum,0);				}
-//			});
-//		vboxesPlayRoundButtons.add(vbPlayRound);
-////	}
-//	
 	//________________________________________________________________________________________
 	tfPlayers = new ArrayList<TextField>();
 	vbPlayGames = new VBox();
@@ -247,7 +197,8 @@ public class View {
 				(Color.BLACK,BorderStrokeStyle.SOLID,null,new BorderWidths(20))));
 		
 	}
-	bpRoot.setLeft(hbMain);
+	bpRoot.setLeft(hbMainView2);
+//	bpRoot.setLeft(hbMain);
 	bpRoot.setRight(vbChooseGameYype);
 	bpRoot.setCenter(vbMiddleStartGame);
 	
@@ -532,7 +483,8 @@ public class View {
 	// Inner Classes ________________________________________________
 
 	public void addNewName(String name) {
-		tfPlayers.get(nextPlayerIndex).setText(name);
+//		tfPlayers.get(nextPlayerIndex).setText(name);
+		tfPlayerNames2.get(nextPlayerIndex).setText(name);
 		nextPlayerIndex++;
 		if(nextPlayerIndex==NUMBER_OF_PLAYERS)
 			hbAddPlayer.setVisible(false);
