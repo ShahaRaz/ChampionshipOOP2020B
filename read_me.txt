@@ -1,4 +1,4 @@
-Championship management Graphical User Interface
+Championship management Graphical User Interface for 3 kind of sports
 
 
 
