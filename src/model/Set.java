@@ -19,7 +19,7 @@ public class Set {
 
     // you can add an object
     public Boolean add(Player p) {
-    	if(list.size()==8) {
+    	if(list.size()==Model.NUMBER_OF_PLAYERS) {
     		System.out.println("Teams bracket is full!");
     		return false;
     	}

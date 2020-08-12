@@ -6,9 +6,9 @@ import java.util.Scanner;
 import listeners.ChampionshipListenable;
 
 public class Model {
+	public final static int NUMBER_OF_PLAYERS = 8;
 	Tournament tour = new Tournament();
 	String gameChoice;
-	private final int NUMBER_OF_PLAYERS = 8;
 	private ArrayList<ChampionshipListenable> allListeners;
 
 	public Model() {
@@ -68,7 +68,7 @@ public class Model {
 				addPlayer(playerName);
 				break;
 			case "2":
-				if (tour.getNumOfPlayerInRound() != 8)
+				if (tour.getNumOfPlayerInRound() != NUMBER_OF_PLAYERS)
 					System.out.println("you must insert 8 teams/participants in order to start a championship!");
 				else {
 					System.out.println("You chose to start a Championship ! ");

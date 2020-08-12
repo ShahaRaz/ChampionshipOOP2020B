@@ -19,5 +19,6 @@ public class AppRunable extends Application{
 		View theView = new View(primaryStage);
 		Controller TheController = new Controller(theModel, theView);
 	}
-
+	// in-order to set different players count, change NUMBER_OF_PLAYERS [to 2^n] in Model class
+	
 }

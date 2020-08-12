@@ -27,22 +27,21 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import listeners.ViewListenable;
+import model.Model;
 
 
 public class View {
-	private static final int NUMBER_OF_PLAYERS = 8;
-	private static final double ENLRAGMENT_FACTOR = 1.5;
+	private static final int NUMBER_OF_PLAYERS = Model.NUMBER_OF_PLAYERS;
+	private static final double ENLRAGMENT_FACTOR = 1; // constant 
 	private static final int CONTESTERS_IN_ROUND=2;	
 	
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 
 	private HBox hbAddPlayer;
-	private ArrayList<TextField> tfPlayers;
 	private int nextPlayerIndex=0;//8 after adding all players // in order insert new names to textFields
 	private ToggleGroup tglGameType;
 	private VBox vbChooseGameYype;
 	private VBox vbMiddleStartGame;
-	private VBox vbPlayGames; 
 	
 	// _____________________________________ 10Aug ->
 	private ArrayList <TextField> tfPlayerNames2;
@@ -55,11 +54,11 @@ public class View {
 	private int playersInRound = NUMBER_OF_PLAYERS;
 	private int gamesPlayedInRoundCounter=0;
 	
-	ArrayList <VBox> vbPlayBtns2;
-	ArrayList <Button> btnPlayGame2 ;
-	BtnPlayGameEventHandler2 btnPlayGameEvent2;
-	ArrayList <VBox> vbNamesInRoundLbls2;
-	HBox hbMainView2;
+	ArrayList <VBox> vbPlayBtns;
+	ArrayList <Button> btnPlayGame ;
+	BtnPlayGameEventHandler btnPlayGameEvent;
+	ArrayList <VBox> vbNamesInRoundLbls;
+	HBox hbMainView;
 	int leaugeRoundPointer;
 	
 
@@ -93,30 +92,28 @@ public class View {
 	hbMain.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
 	
 
-	//_____________________________________ DYNAMICLY MAKE ALL ORGANS OF MAIN BOX_________________
-	btnPlayGameEvent2 = new BtnPlayGameEventHandler2();	
-	vbNamesInRoundLbls2 = new ArrayList<VBox>();
+	//__________________________________ ORGANS OF MAIN BOX
+	btnPlayGameEvent = new BtnPlayGameEventHandler();	
+	vbNamesInRoundLbls = new ArrayList<VBox>();
 	tfPlayerNames2 = new ArrayList<TextField>();
 	
-	vbPlayBtns2 = new ArrayList<VBox>();
-	btnPlayGame2 = new ArrayList<Button>();
+	vbPlayBtns = new ArrayList<VBox>();
+	btnPlayGame = new ArrayList<Button>();
 	
 	VBox vbNamesTemp2;
 	TextField tfTemp2;
 	
 	VBox vbPlayTemp2;
 	Button btnTemp2;
-	
-	
-	
-	hbMainView2 = new HBox();
-	int n=0,b=0;
+
+	hbMainView = new HBox();
+	int b=0; //n=0
 	leaugeRoundPointer=0;// Names , Buttons , main round counter
 	// |||||||||| i = Log2n || n = (Log2n)*n || b  = (Log2n)*(n/2) ||||||||||
 	for (int i = NUMBER_OF_PLAYERS; i >= 1 ; i=i/2,leaugeRoundPointer++) { // runs log2n times
 		// add VB of names  
 		vbNamesTemp2 = new VBox();
-		for(int j=0;j<i;j++,n++) {
+		for(int j=0;j<i;j++) { //,n++
 			tfTemp2 = new TextField();
 			//tfTemp2.setText(""+n);
 			tfTemp2.setEditable(false); // disable direct editing of cells.
@@ -127,7 +124,7 @@ public class View {
 		vbNamesTemp2.setAlignment(Pos.CENTER);
 		vbNamesTemp2.setSpacing((8*(1+leaugeRoundPointer))*ENLRAGMENT_FACTOR);
 		vbNamesTemp2.setPadding(new Insets(7*ENLRAGMENT_FACTOR));
-		vbNamesInRoundLbls2.add(vbNamesTemp2); // add Current VBox to arrayList [index counter(i)]
+		vbNamesInRoundLbls.add(vbNamesTemp2); // add Current VBox to arrayList [index counter(i)]
 		
 		
 		if (i!=1) { // in last round we don't need Playbtn(winner there)
@@ -138,17 +135,17 @@ public class View {
 			btnTemp2.setId("" + b);
 			btnTemp2.setText("Play #" + k);
 			btnTemp2.getId();
-			btnTemp2.setOnAction(btnPlayGameEvent2); // set action
+			btnTemp2.setOnAction(btnPlayGameEvent); // set action
 			btnTemp2.setPrefHeight(10*ENLRAGMENT_FACTOR);
-			btnPlayGame2.add(btnTemp2); // add to Buttons arrayList [index b]
+			btnPlayGame.add(btnTemp2); // add to Buttons arrayList [index b]
 			vbPlayTemp2.getChildren().add(btnTemp2);  // add to Current VBox [index k]
 			
 		}
 		vbPlayTemp2.setAlignment(Pos.CENTER);
 		vbPlayTemp2.setSpacing((17*(2+leaugeRoundPointer))*ENLRAGMENT_FACTOR);
-		vbPlayBtns2.add(vbPlayTemp2); // add Current VBox to arrayList [index counter(i)]
+		vbPlayBtns.add(vbPlayTemp2); // add Current VBox to arrayList [index counter(i)]
 		
-		
+		//____UNCOMMENT NEXT LINES TO PRESENT ALL LEAUGE STRUCTURE ON INIT___
 		// adding VBoxes to view 
 //		hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(leaugeRoundPointer),vbPlayBtns2.get(leaugeRoundPointer));
 		}
@@ -156,44 +153,20 @@ public class View {
 //			hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(leaugeRoundPointer));
 
 		}
-		
 	}
 	leaugeRoundPointer=0;
-	hbMainView2.getChildren().addAll(vbNamesInRoundLbls2.get(0));
+	hbMainView.getChildren().addAll(vbNamesInRoundLbls.get(0));
 
 
 	//________________________________________________________________________________________
-	tfPlayers = new ArrayList<TextField>();
-	vbPlayGames = new VBox();
-//	btnsPlayGames = new ArrayList<Button>();
-	//setBtnsPlayGames(NUMBER_OF_PLAYERS);
-	
-	
-	VBox vbNamesInRound = new VBox();
-	vbNamesInRound.setPadding(new Insets(10));
-	vbNamesInRound.setSpacing(10*ENLRAGMENT_FACTOR);
-	vbNamesInRound.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-	//TextField
-	for (int i = 0; i < NUMBER_OF_PLAYERS; i++) { // make it dynamic layer
-		TextField tfTemp=new TextField();
-		tfTemp.setEditable(false); // disable direct editing of cells.
-		tfPlayers.add(tfTemp);
-	}
-	vbNamesInRound.getChildren().addAll(tfPlayers);
-	vbNamesInRound.setAlignment(Pos.CENTER);
-	
-	///____________TODO  CREATE ARRAY OF US ______________ Finish
-	//FIXME return to normal Switch next two lines (comment out and uncomment out)
-	hbMain.getChildren().addAll(vbNamesInRound,vbPlayGames);
-//	hbMain.getChildren().addAll(vbNamesInRound,vboxesPlayRoundButtons.get(0).getVBox());
 
 	for(Node ny: bpRoot.getChildren()) {
 		((Label)ny).setBorder(new Border(new BorderStroke
-				(Color.BLACK,BorderStrokeStyle.SOLID,null,new BorderWidths(20))));
-		
+				(Color.BLACK,BorderStrokeStyle.SOLID,null,new BorderWidths(20))));	
 	}
-	bpRoot.setLeft(hbMainView2);
-//	bpRoot.setLeft(hbMain);
+	
+	
+	bpRoot.setLeft(hbMainView);
 	bpRoot.setRight(vbChooseGameYype);
 	bpRoot.setCenter(vbMiddleStartGame);
 	
@@ -201,46 +174,10 @@ public class View {
 	stage.setScene(scene);
 	stage.show();
 	
-
-
 }	//Construe methods_________________________________________
 
-//	private void setBtnsPlayGames(int numberOfPlayers) {
-//		vbPlayGames.getChildren().clear();
-//		vbPlayGames.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
-//		vbPlayGames.setSpacing(38*ENLRAGMENT_FACTOR);
-//		vbPlayGames.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-//		
-//		
-//		btnsPlayGames.clear();
-//		// TODO maybe add a toggle group for these buttons
-//		BtnPlayGameEventHandler btnPlayGameEvent = new BtnPlayGameEventHandler();
-//		for (int i = 0; i <  (numberOfPlayers/2); i++) { 
-//			Button btnTmp = new Button();
-//			btnTmp.setText("Play game " + i);
-//			btnTmp.setOnAction(btnPlayGameEvent);
-//			btnsPlayGames.add(btnTmp);
-//		}
-//		vbPlayGames.getChildren().addAll(btnsPlayGames);
-//		vbPlayGames.setAlignment(Pos.CENTER);
-//		
-//	}
-//	 // merge somewhere pretty into the code
-//	class BtnPlayGameEventHandler implements EventHandler<ActionEvent>{
-//		
-//		@Override
-//		public void handle(ActionEvent btnPressed) {
-//			int gameNum = btnsPlayGames.indexOf(btnPressed.getSource());
-//			((Button)(btnPressed.getSource())).setStyle("-fx-text-fill: green");
-//			System.out.println("button num " + gameNum + " pressed");
-//			// maybe paint it so we know which game is on now 
-//			firePlayGameBtn(gameNum,0);
-//			
-//		}	
-//	}
-	
 
-	class BtnPlayGameEventHandler2 implements EventHandler<ActionEvent>{
+	class BtnPlayGameEventHandler implements EventHandler<ActionEvent>{
 		@Override
 		public void handle(ActionEvent btnPressed) {
 			String btnContent = ((Button)btnPressed.getSource()).getText();
@@ -250,8 +187,6 @@ public class View {
 			firePlayGameBtn(gameNum2,0);
 		}	
 	}
-	
-
 	
 	private void setVbStartGameUnderAddPlayer(VBox vbMiddleStartGame,VBox vbChooseGameYype) {
 		Button btnStartGame = new Button();
@@ -264,7 +199,7 @@ public class View {
 					{
 						bpRoot.getChildren().remove(vbMiddleStartGame);
 						bpRoot.getChildren().remove(vbChooseGameYype);
-						hbMainView2.getChildren().addAll(vbPlayBtns2.get(leaugeRoundPointer),vbNamesInRoundLbls2.get(leaugeRoundPointer+1));
+						hbMainView.getChildren().addAll(vbPlayBtns.get(leaugeRoundPointer),vbNamesInRoundLbls.get(leaugeRoundPointer+1));
 						fireStartChampionship((gameType));
 						System.out.println("After opensPlayGameWindow");
 					}
@@ -278,14 +213,11 @@ public class View {
 		vbMiddleStartGame.setSpacing(20*ENLRAGMENT_FACTOR);		
 	}
 	
-	
-	
-	
 	protected boolean checkLeaugeIsFull() {
 		boolean result = (nextPlayerIndex==NUMBER_OF_PLAYERS);
 		if (!result) {
 			popUpShortMassage("Can't start game", "please enter " + (NUMBER_OF_PLAYERS-nextPlayerIndex) +
-					" more players", 200, 100);
+					" more players", 200, 100,20);
 			return false;
 		}
 		return true;
@@ -294,7 +226,7 @@ public class View {
 	protected String getGameType() {
 		gameType = (RadioButton)tglGameType.getSelectedToggle(); // Cast object to radio button
 		if (gameType==null) {
-	    	popUpShortMassage("Can't start game", "please select game type", 200, 100);
+	    	popUpShortMassage("Can't start game", "please select game type", 200, 100,20);
 	    	return "";
 		}
         return gameType.getText();
@@ -331,10 +263,7 @@ public class View {
 		vbPlayerSeperator.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
 		vbPlayerSeperator.setSpacing(10*ENLRAGMENT_FACTOR);
 		vbPlayerSeperator.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
-		Label lblHeadline = new Label(player1 + " Vs. " + player2 );
-		lblHeadline.setMinHeight(10*NUMBER_OF_PLAYERS);
-		lblHeadline.setAlignment(Pos.TOP_CENTER);
-		lblHeadline.setFont(Font.font("Cambria", 32));
+		Label lblHeadline =setHeadLine(player1 + " Vs. " + player2 ,32);
 		vbPlayerSeperator.getChildren().add(lblHeadline); 
 		// each layer in VBox is a player row 
 		ArrayList<HBox> hbPlayerScores = new ArrayList<HBox>(); // array of HBoxes
@@ -390,7 +319,7 @@ public class View {
 					temp2 = ((TextField)((HBox) hbPlayerScores.get(1)).getChildren().get(1+j)).getText();
 					if(!(temp1.matches("\\d*"))||(!(temp2.matches("\\d*")))) {
 						popUpShortMassage("Invalid input" ,
-								"In round: " + (j+1) + "  Enter only Positive integers " , 300, 150);
+								"In round: " + (j+1) + "  Enter only Positive integers " , 300, 150,20);
 						scoresValid=false;
 						break;
 					}
@@ -423,6 +352,14 @@ public class View {
 		gameStage.setScene(sceneGame);
 		gameStage.show();
 		
+	}
+	
+	private Label setHeadLine(String headLine,int fontSize) {
+		Label lblHeadline = new Label(headLine);
+		lblHeadline.setMinHeight(10*ENLRAGMENT_FACTOR);
+		lblHeadline.setAlignment(Pos.TOP_CENTER);
+		lblHeadline.setFont(Font.font("Cambria", fontSize));
+		return lblHeadline;
 	}
 
 	private void setHbAddPlayer(HBox hbAddPlayer) {
@@ -467,7 +404,7 @@ public class View {
 	private void setRdoGameType(VBox vbChooseGameType) {
 		vbChooseGameType.setPadding(new Insets(30*ENLRAGMENT_FACTOR));
 		vbChooseGameType.setSpacing(20*ENLRAGMENT_FACTOR);
-		vbChooseGameType.setBackground(new Background(new BackgroundFill(Color.AQUA, null, null)));
+		//vbChooseGameType.setBackground(new Background(new BackgroundFill(Color.AQUA, null, null)));
 		
 		tglGameType = new ToggleGroup();
 		RadioButton rdoTennis = new RadioButton("Tennis");
@@ -494,20 +431,20 @@ public class View {
 	} // action started from 
 
 	public void alertPlayerAlreadyExists(String name) {
-		popUpShortMassage("Error", name + " Already in the leauge, choose another one.", 200, 100);
+		popUpShortMassage("Error", name + " Already in the leauge, choose another one.", 200, 100,25);
 	}
 
 	public void alertNoRoom() {
-		popUpShortMassage("Error", "league is full, No room" , 200, 100);
+		popUpShortMassage("Error", "league is full, No room" , 200, 100,25);
 	}
 	
-	private void popUpShortMassage(String headLine , String Massage,int Width, int Height) {
+	private void popUpShortMassage(String headLine , String Massage,int Width, int Height,int fontSize) {
 		Stage miniStage = new Stage();
 		VBox vbPopup = new VBox();
 		miniStage.setTitle(headLine);	
-		Label lblMiniPopup = new Label();
-		lblMiniPopup.setText(Massage);
-		lblMiniPopup.setAlignment(Pos.CENTER);
+		Label lblMiniPopup =setHeadLine(Massage,fontSize);
+	//	lblMiniPopup.setText(Massage);
+	//	lblMiniPopup.setAlignment(Pos.CENTER);
 		setStageCONSTSize(miniStage, Width, Width, Height, Height);
 		Button btnClose = new Button();
 		btnClose.setText("Ok");
@@ -576,17 +513,17 @@ public class View {
 
 	
 	public void alertNameNotValid(String message) {
-		popUpShortMassage("Error", "name not valid! ," + message , 200, 100);
+		popUpShortMassage("Error", "name not valid! ," + message , 200, 100,15);
 	}
 
 	public void alertScoreBoardNotValid(int gameId, String headLine, String message) {
-		popUpShortMassage(headLine, message, 400, 100); // delete gameId if never used
+		popUpShortMassage(headLine, message, 400, 100,15); // delete gameId if never used
 	}
 
 	public void announceGameResults(int gameId, String headLine, String message) {
 		if(headLine.contains("TIE")) {
 			gameStage.close();
-			popUpShortMassage(headLine, message, 400, 100);
+			popUpShortMassage(headLine, message, 400, 100,15);
 			String[] getStage = message.split("\\s+"); //getStage[0] holds gameStage
 			int gameStage = Integer.parseInt(getStage[0], 0, getStage[0].length(), 10); 
 			firePlayGameBtn(gameId,gameStage); // fire another window 
@@ -604,7 +541,7 @@ public class View {
 				else {
 				gamesPlayedInRoundCounter=0;
 				leaugeRoundPointer++;
-				hbMainView2.getChildren().addAll(vbPlayBtns2.get(leaugeRoundPointer),vbNamesInRoundLbls2.get(leaugeRoundPointer+1));
+				hbMainView.getChildren().addAll(vbPlayBtns.get(leaugeRoundPointer),vbNamesInRoundLbls.get(leaugeRoundPointer+1));
 				fireEndOfLeaugeRound();
 				}
 			}
@@ -612,8 +549,8 @@ public class View {
 	}
 
 	private void AnnounceWinner(String winner) {
-		popUpShortMassage(winner + "won!","_____"+ winner + "is number 1!_____\n from " + NUMBER_OF_PLAYERS + " players", 300, 300);
-	}
+		popUpShortMassage(winner + " Won!","_________"+ winner + " is #1! _________\n\nBest of " + NUMBER_OF_PLAYERS + " players", 300, 300,30);
+	}										        									
 
 	private void fireEndOfLeaugeRound() {
 		for(ViewListenable l : allListeners) {
@@ -629,8 +566,3 @@ public class View {
 	}
 	
 }
-
-
-
-
-
