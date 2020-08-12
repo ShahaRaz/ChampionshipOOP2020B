@@ -1,7 +1,11 @@
+Championship management Graphical User Interface
+
+
+
 
 	Definitions:
-
-	// gameNumber - Define game in current round (8 players - 4 games -> gameNumber [0,3])
-	// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football), in tennis [1=2=3=...n (till tieBreak)]
-	// numOfRounds - how many rounds there are in a game -> [[[[[ THE MODEL HOLDS THIS INFORMATION!~! ]]]]] 
-	//	-> for example: football has 2 rounds in regular, 2 rounds in extraTime & 5 rounds[shots] in penalties
+// gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3])
+	// GAMESTAGE / gameState:
+			//	Football: [0,1] are reg halfs , [2,3] are extra time halfs , [4-8] are penalties, 8+ are 1shot penalties..
+			// 	Basketball: [0,1,2,3] are reg quarters , 4+ are extra times
+			//	Tennis: [0-4] all regular rounds.

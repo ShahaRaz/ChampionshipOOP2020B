@@ -475,7 +475,5 @@ public class Model {
 			//	Football: [0,1] are reg halfs , [2,3] are extra time halfs , [4-8] are penalties, 8+ are 1shot penalties..
 			// 	Basketball: [0,1,2,3] are reg quarters , 4+ are extra times
 			//	Tennis: [0-4] all regular rounds.
-	// numOfRounds - how many rounds there are in a game -> 
-	//	-> for example: football has 2 rounds in regular, 2 rounds in extraTime & 5 rounds[shots] in penalties
-
+	
 }
