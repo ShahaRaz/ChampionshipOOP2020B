@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import controller.Controller;
 import listeners.ChampionshipListenable;
 
 public class Model {
@@ -11,11 +10,9 @@ public class Model {
 	String gameChoice;
 	private final int NUMBER_OF_PLAYERS = 8;
 	private ArrayList<ChampionshipListenable> allListeners;
-	private ArrayList<Player> roundPlayers;
 
 	public Model() {
 		allListeners = new ArrayList<ChampionshipListenable>();
-		roundPlayers = new ArrayList<Player>();
 
 	}
 
