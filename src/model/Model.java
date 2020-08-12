@@ -467,6 +467,10 @@ public class Model {
 		allListeners.add(l);
 	}
 
+	public void filterLosersFromTeams() {
+		tour.filteringLostPlayers();
+	}
+
 	//announce 
 
 	// gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3])

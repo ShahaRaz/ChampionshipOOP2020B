@@ -108,6 +108,12 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 	}
 
 
+	@Override
+	public void viewDeclareEndOfLeaugeRound() {
+		theModel.filterLosersFromTeams();
+	}
+
+
 		//DEFINITIONS
 	// gameNumber / gameId - Define game in current round (8 players - 4 games -> gameNumber [0,3]first round, [4,5] second round [6] last round)
 	// gameStage - [0 - regular], [1 - ExtraTime], [2 - Penalties] (in football), in tennis [1=2=3=...n (till tieBreak)]

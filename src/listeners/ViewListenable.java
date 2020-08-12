@@ -16,6 +16,8 @@ public interface ViewListenable {
 	
 	public void viewAskForGameFormat(int gameNumber,int gameState);
 
+	public void viewDeclareEndOfLeaugeRound();
+
 	
 }
 

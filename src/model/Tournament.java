@@ -24,6 +24,34 @@ public class Tournament {
 		return type;
 	}
 
+	protected void filteringLostPlayers() {
+		System.out.println("___________________filteringLostPlayers__________________");
+		for(Player p : teams.getList()) {
+			System.out.print( p + "\t");
+		}
+		Set tempTeam = new Set();
+		if(teams.size()==1)
+			return; //should'nt get here at-all
+		int winningScore = getWonScore();
+		for(Player p:teams.getList()) { // only half won
+			if(p.getWinsCounter()==winningScore)
+				tempTeam.add(p);
+		}
+		this.teams=tempTeam;
+		
+	}
+	
+	private int getWonScore() {
+		//getting score from two first, since one of them must have the winning count of victorius
+		int score0 = teams.get(0).getWinsCounter();
+		int score1 = teams.get(1).getWinsCounter();
+		if(score0>score1) 
+			return score0;
+		else
+			return score1;
+
+	}
+	
 	public void secondRound() {
 		Set teams4 = new Set();
 		for (int i = 0; i < getNumOfPlayerInRound(); i++) {
@@ -177,7 +205,7 @@ public class Tournament {
 		} else {
 			if (sum2 > sum1) {
 				winnerName=teams.get((2*gameId)+1).getName();
-				teams.upWins((2*gameId )+ 1);
+				teams.upWins((2*gameId ) + 1);
 				return winnerName + "@"  + winnerName + "Won and go to next stage!";
 			} else {
 				// draw

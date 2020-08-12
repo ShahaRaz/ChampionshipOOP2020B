@@ -32,15 +32,13 @@ import listeners.ViewListenable;
 public class View {
 	private static final int NUMBER_OF_PLAYERS = 8;
 	private static final double ENLRAGMENT_FACTOR = 1.5;
-	private static final int CONTESTERS_IN_ROUND=2;
-	
-	
+	private static final int CONTESTERS_IN_ROUND=2;	
 	
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 
 	private HBox hbAddPlayer;
 	private ArrayList<TextField> tfPlayers;
-	private int nextPlayerIndex=0; // in order insert new names to textFields
+	private int nextPlayerIndex=0;//8 after adding all players // in order insert new names to textFields
 	private ArrayList<Button> btnsPlayGames;
 	private ToggleGroup tglGameType;
 	private VBox vbChooseGameYype;
@@ -53,6 +51,11 @@ public class View {
 	
 	private ArrayList<ViewListenable> allListeners;
 	RadioButton gameType;
+	
+	private int playersInRound = NUMBER_OF_PLAYERS;
+	private int gamesPlayedInRoundCounter=0;
+	
+	
 
 	
 	public View(Stage stage)
@@ -129,7 +132,9 @@ public class View {
 		vbPlayTemp2 = new VBox();
 		for(int k=0;k<i/2;k++,b++) { // maybe move k out, so that numbering 
 			btnTemp2 = new Button();
-			btnTemp2.setText("Play #" + b);
+			btnTemp2.setId("" + b);
+			btnTemp2.setText("Play #" + k);
+			btnTemp2.getId();
 			btnTemp2.setOnAction(btnPlayGameEvent2); // set action
 			btnTemp2.setPrefHeight(10*ENLRAGMENT_FACTOR);
 			btnPlayGame2.add(btnTemp2); // add to Buttons arrayList [index b]
@@ -301,7 +306,7 @@ public class View {
 			if(gameStage<2)
 				return "Main Game";
 			else if (gameStage>1&&gameStage<4) {
-				return "ExtraTime";
+				return "Extra Time";
 			}
 			else {
 				return "Penalties";
@@ -581,16 +586,39 @@ public class View {
 		if(headLine.contains("TIE")) {
 			gameStage.close();
 			popUpShortMassage(headLine, message, 400, 100);
-			String[] getStage = message.split("\\s+");
+			String[] getStage = message.split("\\s+"); //getStage[0] holds gameStage
 			int gameStage = Integer.parseInt(getStage[0], 0, getStage[0].length(), 10); 
 			firePlayGameBtn(gameId,gameStage); // fire another window 
 		}
-		else { // winner in round
+		else { // winner in round, headLine contains winner's name
 			popUpShortMassage(headLine, message, 200, 100);
+
 			gameStage.close();
-			//tfPlayerNames2.get(gameId).setText(headLine);
-			tfPlayerNames2.get((NUMBER_OF_PLAYERS)+gameId).setText(headLine);			
+//			tfPlayerNames2.get((NUMBER_OF_PLAYERS)+(nextPlayerIndex)+gameId).setText(headLine);	
+			tfPlayerNames2.get((nextPlayerIndex)+gameId).setText(headLine);	
+			
+			gamesPlayedInRoundCounter++;
+			if(gamesPlayedInRoundCounter==(playersInRound/2)) {
+				playersInRound=playersInRound/2;
+				if (playersInRound==1)
+					AnnounceWinner(headLine);
+				gamesPlayedInRoundCounter=0;
+				fireEndOfLeaugeRound();
+			}
 		}
+	}
+
+	private void AnnounceWinner(String winner) {
+		popUpShortMassage(winner + "won!", winner + "_____is number 1!_____\n from " + NUMBER_OF_PLAYERS + " players", 300, 300);
+	}
+
+	private void fireEndOfLeaugeRound() {
+		for(ViewListenable l : allListeners) {
+			l.viewDeclareEndOfLeaugeRound();
+		}		
+		System.out.println("entered fireEndOfLeaugeRound(), line 600");
+		
+		nextPlayerIndex=nextPlayerIndex+(playersInRound);
 	}
 
 	public void registerListener(ViewListenable l) {
