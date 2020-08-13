@@ -69,6 +69,7 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 	@Override
 	public void modelAnnounceRoundResults(int gameId, String headLine, String message) {
 		theView.announceGameResults(gameId,headLine,message);
+		// In-case of TIE -> //message holds gameStage (extraction in View.announceGameResults)
 	}
 
 
@@ -97,7 +98,6 @@ public class Controller implements ChampionshipListenable , ViewListenable {
 
 	@Override
 	public void viewAskForGameFormat(int gameId,int gameState) {
-		System.out.println("in new at viewAskForGameFormat(), game state: " +gameState);
 		theModel.sendPlayerNameNRounds(gameId,gameState);
 	}
 

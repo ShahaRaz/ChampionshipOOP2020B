@@ -1,6 +1,6 @@
 Championship management Graphical User Interface for 3 kind of sports
 
-
+using MVC [ Model View Controller ] Design Pattern
 
 
 	Definitions:

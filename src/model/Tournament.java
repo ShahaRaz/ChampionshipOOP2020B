@@ -25,7 +25,6 @@ public class Tournament {
 	}
 
 	protected void filteringLostPlayers() {
-		System.out.println("___________________filteringLostPlayers__________________");
 		for(Player p : teams.getList()) {
 			System.out.print( p + "\t");
 		}
@@ -141,7 +140,7 @@ public class Tournament {
 			if (p1Score > 7 || p2Score > 7 || p1Score < 0 || p2Score < 0
 					|| (Math.abs(p1Score - p2Score) < 2 && (p1Score + p2Score) < 13)
 					|| (p1Score != 6 && p2Score != 6) && (p1Score + p2Score) < 12) {
-				System.out.println("not valid scores , try again"); // fire NOT VALID SCORE
+//				System.out.println("not valid scores , try again"); // fire NOT VALID SCORE
 				return false;
 			} else {
 				if (p1Score > p2Score)
@@ -152,7 +151,7 @@ public class Tournament {
 			}
 		case Basketball:
 			if (p1Score < 0 || p2Score < 0) {
-				System.out.println("fire NOT VALID"); // OR THROWS
+//				System.out.println("fire NOT VALID"); // OR THROWS
 				return false;
 			} else {
 				sum1 += p1Score;
@@ -161,11 +160,11 @@ public class Tournament {
 			}
 		case Soccer:
 			if ((p1Score < 0 || p2Score < 0) && (gameStage != 2)) {
-				System.out.println("fire NOT VALID"); // OR THROWS
+//				System.out.println("fire NOT VALID"); // OR THROWS
 				return false;
 			} else {
 				if ((p1Score < 0 || p2Score < 0 || p2Score > 1 || p1Score > 1) && (gameStage == 2)) {
-					System.out.println("fire NOT VALID"); // OR THROWS
+//					System.out.println("fire NOT VALID"); // OR THROWS
 					return false;
 				}
 			}
@@ -185,16 +184,13 @@ public class Tournament {
 		for(Integer ingr:p1Score) {
 			System.out.print(ingr);
 		}
-		System.out.println("\nin Tour.checkBoard() , totalRoundsPlayed = " + totalRoundsPlayed+"\ni= " + i);
+//		System.out.println("\nin Tour.checkBoard() , totalRoundsPlayed = " + totalRoundsPlayed+"\ni= " + i);
 		for (; i < totalRoundsPlayed; i++) {
-			System.out.println("i = " + i + "sum1 = " + sum1 + "\tsum2 = " + sum2);
 			if (!enterRoundScore(i, p1Score.get(i), p2Score.get(i)))  { //updates sum1&sum2
 				return printInstructions(i + 1);			
 			}
 
 		}
-		System.out.println("sum1 = " + sum1 + "\tsum2 = " + sum2);
-
 		String winnerName;
 		if (sum1 > sum2) {
 			// player 1 win logic

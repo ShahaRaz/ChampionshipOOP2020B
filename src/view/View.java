@@ -26,14 +26,18 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import listeners.ViewListenable;
 import model.Model;
+import userInterfaces.GraphicalUI;
+import userInterfaces.Messageable;
 
 
 public class View {
 	private static final int NUMBER_OF_PLAYERS = Model.NUMBER_OF_PLAYERS;
-	private static final double ENLRAGMENT_FACTOR = 1; // constant 
+	public static final double ENLRAGMENT_FACTOR = 1; // constant 
 	private static final int CONTESTERS_IN_ROUND=2;	
+	Messageable ui = new GraphicalUI();
 	
 	private BorderPane bpRoot; // arrangement of Nodes to areas: LEFT,TOP,RIGHT,BOTTOM, CENTER
 
@@ -170,7 +174,7 @@ public class View {
 	bpRoot.setRight(vbChooseGameYype);
 	bpRoot.setCenter(vbMiddleStartGame);
 	
-	Scene scene = new Scene(bpRoot,760*ENLRAGMENT_FACTOR,420*ENLRAGMENT_FACTOR); 
+	Scene scene = new Scene(bpRoot,900*ENLRAGMENT_FACTOR,500*ENLRAGMENT_FACTOR); 
 	stage.setScene(scene);
 	stage.show();
 	
@@ -216,8 +220,8 @@ public class View {
 	protected boolean checkLeaugeIsFull() {
 		boolean result = (nextPlayerIndex==NUMBER_OF_PLAYERS);
 		if (!result) {
-			popUpShortMassage("Can't start game", "please enter " + (NUMBER_OF_PLAYERS-nextPlayerIndex) +
-					" more players", 200, 100,20);
+			popUpShortMessage("Can't start game", "please enter " + (NUMBER_OF_PLAYERS-nextPlayerIndex) +
+					" more players", 300, 100,15);
 			return false;
 		}
 		return true;
@@ -226,7 +230,7 @@ public class View {
 	protected String getGameType() {
 		gameType = (RadioButton)tglGameType.getSelectedToggle(); // Cast object to radio button
 		if (gameType==null) {
-	    	popUpShortMassage("Can't start game", "please select game type", 200, 100,20);
+	    	popUpShortMessage("Can't start game", "please select game type", 300, 100,15);
 	    	return "";
 		}
         return gameType.getText();
@@ -235,7 +239,7 @@ public class View {
 	private String getStageName(int gameStage) {
 		String sportName = getGameType();
 		if(sportName.contains("Basketball")) {
-			if(gameStage<5)
+			if(gameStage<4)
 				return "Main Game";
 			else
 				return "Extra Time";
@@ -258,7 +262,7 @@ public class View {
 		// number of rounds (inorder to know how many textboxes to open
 		String[] tempStrArr = {player1,player2}; // for the loop..
 		gameStage = new Stage();
-		gameStage.setTitle(getGameType() + getStageName(gameState));
+		gameStage.setTitle(getGameType() + " " +  getStageName(gameState));
 		VBox vbPlayerSeperator = new VBox();
 		vbPlayerSeperator.setPadding(new Insets(10*ENLRAGMENT_FACTOR));
 		vbPlayerSeperator.setSpacing(10*ENLRAGMENT_FACTOR);
@@ -277,8 +281,8 @@ public class View {
 		//name label
 			Label lblPName= new Label();
 			lblPName.setText(tempStrArr[i]); 
-			lblPName.setMinWidth(40*ENLRAGMENT_FACTOR);
-			lblPName.setMaxWidth(40*ENLRAGMENT_FACTOR);
+			lblPName.setMinWidth(60*ENLRAGMENT_FACTOR);
+			lblPName.setMaxWidth(60*ENLRAGMENT_FACTOR);
 			hbTempPS.getChildren().add(lblPName); // hbTempPS[0]
 		//Scores 
 			//TextField[] tfScoreCells = new TextField[numOfRounds];
@@ -318,7 +322,7 @@ public class View {
 					temp1 = ((TextField)((HBox) hbPlayerScores.get(0)).getChildren().get(1+j)).getText();
 					temp2 = ((TextField)((HBox) hbPlayerScores.get(1)).getChildren().get(1+j)).getText();
 					if(!(temp1.matches("\\d*"))||(!(temp2.matches("\\d*")))) {
-						popUpShortMassage("Invalid input" ,
+						popUpShortMessage("Invalid input" ,
 								"In round: " + (j+1) + "  Enter only Positive integers " , 300, 150,20);
 						scoresValid=false;
 						break;
@@ -348,7 +352,7 @@ public class View {
 		//show time
 		vbPlayerSeperator.getChildren().add(btnEnterResults);
 		vbPlayerSeperator.setAlignment(Pos.CENTER);
-		Scene sceneGame = new Scene(vbPlayerSeperator,400*ENLRAGMENT_FACTOR,200*ENLRAGMENT_FACTOR); 
+		Scene sceneGame = new Scene(vbPlayerSeperator,500*ENLRAGMENT_FACTOR,300*ENLRAGMENT_FACTOR); 
 		gameStage.setScene(sceneGame);
 		gameStage.show();
 		
@@ -431,18 +435,25 @@ public class View {
 	} // action started from 
 
 	public void alertPlayerAlreadyExists(String name) {
-		popUpShortMassage("Error", name + " Already in the leauge, choose another one.", 200, 100,25);
+		popUpShortMessage("Error", name + "Already in the leauge", 350, 150,15);
+		//FIXME
 	}
 
 	public void alertNoRoom() {
-		popUpShortMassage("Error", "league is full, No room" , 200, 100,25);
+		popUpShortMessage("Error", "league is full, No room" , 200, 100,25);
 	}
 	
-	private void popUpShortMassage(String headLine , String Massage,int Width, int Height,int fontSize) {
+	public void popUpShortMessage(String headLine , String message,int Width, int Height,int fontSize) {
+//		ui.showMessage(headLine+ "\n\n" + message);} // optional popUp using ui
 		Stage miniStage = new Stage();
 		VBox vbPopup = new VBox();
-		miniStage.setTitle(headLine);	
-		Label lblMiniPopup =setHeadLine(Massage,fontSize);
+		if (headLine.equalsIgnoreCase("UNDECORATED")) {
+			miniStage.initStyle(StageStyle.UNDECORATED);
+		}
+		else {
+			miniStage.setTitle(headLine);
+		}
+		Label lblMiniPopup =setHeadLine(message,(int)(fontSize*ENLRAGMENT_FACTOR));
 	//	lblMiniPopup.setText(Massage);
 	//	lblMiniPopup.setAlignment(Pos.CENTER);
 		setStageCONSTSize(miniStage, Width, Width, Height, Height);
@@ -458,10 +469,10 @@ public class View {
 		vbPopup.setAlignment(Pos.CENTER);
 		vbPopup.setSpacing(20*ENLRAGMENT_FACTOR);
 		
-		Scene scene = new Scene(vbPopup,Width*ENLRAGMENT_FACTOR,Height*ENLRAGMENT_FACTOR); 
+		Scene scene = new Scene(vbPopup,(200+Width)*ENLRAGMENT_FACTOR,(200+Height)*ENLRAGMENT_FACTOR); 
 		miniStage.setScene(scene);
 		
-		//miniStage.initStyle(StageStyle.UNDECORATED);
+		
 		miniStage.show();
 		
 		miniStage.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -484,8 +495,8 @@ public class View {
 
 	private void fireCheckResults(ArrayList<Integer> p1Score,ArrayList<Integer> p2Score,int gameStage,int gameId) {
 		for (int i = 0; i < p1Score.size(); i++) {
-			System.out.print("p1 score in round " + (i+1) + " is " + p1Score.get(i));
-			System.out.println("\tp2 score in round " + (i+1) + " is: "+p2Score.get(i));
+//			System.out.print("p1 score in round " + (i+1) + " is " + p1Score.get(i));
+//			System.out.println("\tp2 score in round " + (i+1) + " is: "+p2Score.get(i));
 			}
 		for (ViewListenable l : allListeners) {
 			l.viewAskToPlayGame(p1Score, p2Score, gameStage, gameId);
@@ -513,17 +524,17 @@ public class View {
 
 	
 	public void alertNameNotValid(String message) {
-		popUpShortMassage("Error", "name not valid! ," + message , 200, 100,15);
+		popUpShortMessage("Error", "name not valid! ," + message , 200, 100,15);
 	}
 
 	public void alertScoreBoardNotValid(int gameId, String headLine, String message) {
-		popUpShortMassage(headLine, message, 400, 100,15); // delete gameId if never used
+		popUpShortMessage(headLine, message, 400, 100,15); // delete gameId if never used
 	}
 
 	public void announceGameResults(int gameId, String headLine, String message) {
 		if(headLine.contains("TIE")) {
 			gameStage.close();
-			popUpShortMassage(headLine, message, 400, 100,15);
+			//popUpShortMessage(headLine, message, 400, 100,15);
 			String[] getStage = message.split("\\s+"); //getStage[0] holds gameStage
 			int gameStage = Integer.parseInt(getStage[0], 0, getStage[0].length(), 10); 
 			firePlayGameBtn(gameId,gameStage); // fire another window 
@@ -531,9 +542,13 @@ public class View {
 		else { // winner in round, headLine contains winner's name
 			gameStage.close();
 //			tfPlayerNames2.get((NUMBER_OF_PLAYERS)+(nextPlayerIndex)+gameId).setText(headLine);	
+			if(tfPlayerNames2.get((nextPlayerIndex)+gameId).getText().length()==0) // if game not re-Entered
+			{
+				gamesPlayedInRoundCounter++;
+			}
 			tfPlayerNames2.get((nextPlayerIndex)+gameId).setText(headLine);	
 			
-			gamesPlayedInRoundCounter++;
+			
 			if(gamesPlayedInRoundCounter==(playersInRound/2)) { // end of round
 				playersInRound=playersInRound/2;
 				if (playersInRound==1)
@@ -543,22 +558,20 @@ public class View {
 				leaugeRoundPointer++;
 				hbMainView.getChildren().addAll(vbPlayBtns.get(leaugeRoundPointer),vbNamesInRoundLbls.get(leaugeRoundPointer+1));
 				fireEndOfLeaugeRound();
+				nextPlayerIndex=nextPlayerIndex+(playersInRound);
 				}
 			}
 		}
 	}
 
 	private void AnnounceWinner(String winner) {
-		popUpShortMassage(winner + " Won!","_________"+ winner + " is #1! _________\n\nBest of " + NUMBER_OF_PLAYERS + " players", 300, 300,30);
+		popUpShortMessage(winner + " Won!",""+ winner + " is #1! \n\nBest of " + NUMBER_OF_PLAYERS + " players", 300, 300,30);
 	}										        									
 
 	private void fireEndOfLeaugeRound() {
 		for(ViewListenable l : allListeners) {
 			l.viewDeclareEndOfLeaugeRound();
-		}		
-		System.out.println("entered fireEndOfLeaugeRound(), line 600");
-		
-		nextPlayerIndex=nextPlayerIndex+(playersInRound);
+		}				
 	}
 
 	public void registerListener(ViewListenable l) {

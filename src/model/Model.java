@@ -208,7 +208,7 @@ public class Model {
 	}
 
 	private static void announceWinner(Player winner) {
-		System.out.println(winner.getName() + " is the Winner ");
+//		System.out.println(winner.getName() + " is the Winner ");
 		winner.uppWins();
 	}
 
@@ -349,7 +349,7 @@ public class Model {
 		if(splitCase[0].contains("ERROR")) {
 			fireModelAlertScoresNotValid(gameId,splitCase[0] ,splitCase[1]); 
 		}
-		else if(splitCase[0].contains("TIE")) {
+		else if(splitCase[0].contains("TIE")) { //splitCase[1] holds gameStage (extraction in View.announceGameResults)
 			fireModelAnnounceRoundResults(gameId,"TIE in round #" + gameId ,splitCase[1]); 
 		}
 		else if(splitCase[1].contains("Won")) {
@@ -442,7 +442,6 @@ public class Model {
 
 	private void fireModelSendRoundFormat(int numOfRounds, String player1, String player2,int gameState,int gameId) {
 		 for(ChampionshipListenable cl : allListeners) {
-			 System.out.println("in model fireModelSendRoundFormat() game stats: " + gameState);
 			 cl.modelSendGameFormat(numOfRounds,player1,player2,gameState,gameId);
 		 }
 	}

@@ -25,7 +25,7 @@ public class Set {
     	}
         for (Player t : list) {
             if (t.equals(p)) {
-            	System.out.println("the participant already exists");
+//            	System.out.println("the participant already exists");
             	return false;
             }
         }
